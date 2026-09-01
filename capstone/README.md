@@ -1,5 +1,5 @@
 ## Architecture Diagram
-'''mermaid
+```mermaid
 flowchart TD
     %% Node Definitions & Shapes
     USER([User / Ticket Ingestion])
@@ -76,4 +76,4 @@ flowchart TD
     class IN_REJECT,DEFLECT,LLM2,HITL,USER_SLA fallback;
     class KB,AUDIT,EVAL data;
     class AUTO_ACTION,P_OUT success;
-'''
+```
