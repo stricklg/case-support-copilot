@@ -118,3 +118,18 @@ Goal: Make the entire pipeline observable, traceable, and testable against regre
 Work:
 Add the append-only JSONL logger at each state boundary.
 Run a batch of 10–20 golden test cases through the complete system to score schema compliance, retrieval precision, and routing accuracy.
+
+Status as of 10/20/26:
+Capstone outlined above complete. An LLM-as-judge harness (capstone/eval/judge.py)
+has been built out from the original notebook to evaluate reply quality,
+using an OpenAI model (gpt-6.1-sol) to judge the Gemini-generated output.
+Next: expand the golden set from 10 to 30 samples (in production these
+samples would be randomly pulled from real customer outputs) and write
+the outputs to JSON for the judge to evaluate daily through a Kestra
+flow, tracking quality drift over time.
+Current limitations of the judge:
+Now on OpenAI to remove same-family preference in eval; the original
+notebook judge was Gemini-based.
+Judge grades the reply against the KB doc that was pulled; it does not
+evaluate whether retrieval pulled the correct doc. Retrieval quality
+is measured separately.
