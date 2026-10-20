@@ -17,6 +17,7 @@ from schemas import InboundTicket
 from telemetry import TelemetryEvent, log_event, LOG_FILE_PATH
 from actions import ExecutionResult, dispatch_action
 from types import SimpleNamespace
+from config import PRIMARY_MODEL, FALLBACK_MODEL, EMBEDDING_MODEL, SIMILARITY_THRESHOLD
 import os
 import json
 
@@ -30,8 +31,8 @@ if __name__ == "__main__":
   kb_dir = Path.cwd() / "kb"
   kb = KB(
       kb_dir=kb_dir,
-      similarity_threshold=0.65,
-      model="gemini-embedding-001",
+      similarity_threshold=SIMILARITY_THRESHOLD,
+      model=EMBEDDING_MODEL,
   )
   kb.build_index()
 
@@ -237,15 +238,15 @@ def triage_and_categorize(ticket_text: str, kb) -> TriageOutput:
 
     try:
         response = client.models.generate_content(
-            model="gemini-3.5-flash-lite",
+            model=PRIMARY_MODEL,
             contents= augmented_prompt,
             config=config,
         )
 
     except (errors.APIError, Exception) as e:
-        print(f"3.5 Flash Failed with error: {e}. Falling back to 2.5 Pro model.")
+        print(f"{PRIMARY_MODEL} Failed with error: {e}. Falling back to {FALLBACK_MODEL}.")
         response = client.models.generate_content(
-            model = "gemini-2.5-pro",
+            model = FALLBACK_MODEL,
             contents = augmented_prompt,
             config=config,
         )

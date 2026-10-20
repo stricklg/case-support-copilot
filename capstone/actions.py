@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Any, Dict, Optional
 from pydantic import BaseModel, Field
 from schemas import InboundTicket
+from config import CONFIDENCE_THRESHOLD
 
 class RoutingDesignation(str, Enum):
     AUTOMATED_CRM = "AUTOMATED_CRM"
@@ -63,8 +64,6 @@ def route_to_hitl_queue(
         "status": "PENDING_HUMAN_REVIEW",
         "flag_reason": reason,
     }
-
-CONFIDENCE_THRESHOLD = 0.65
 
 def dispatch_action(ticket: InboundTicket, triage_output: Any) -> ExecutionResult:
     """Phase 4 Dispatcher:

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from google import genai
 from dotenv import load_dotenv
+from config import SIMILARITY_THRESHOLD, EMBEDDING_MODEL
 import numpy as np
 
 load_dotenv()
@@ -19,8 +20,8 @@ class KB:
     def __init__(
             self,
             kb_dir: Path,
-            similarity_threshold: float = 0.65,
-            model: str = "gemini-embedding-001",
+            similarity_threshold: float = SIMILARITY_THRESHOLD,
+            model: str = EMBEDDING_MODEL,
     ):
         self.client = genai.Client()
         self.kb_dir = kb_dir
