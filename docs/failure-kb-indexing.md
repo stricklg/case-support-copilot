@@ -95,3 +95,20 @@ Follow-ups, tracked in the eval work:
   the system. Scores get quoted with the date and the index state they
   were measured against; coverage gets reviewed before scores get
   quoted.
+
+## Resolution — 2026-10-27
+
+The escalation gate is fixed. `ESCALATION_CATEGORIES` in
+`actions.py` now holds the Category enum values it is compared
+against — `auth_sso_provisioning` and `data export compliance`
+replace the labels that matched nothing — and the queue reason
+now states the true cause instead of reporting a low-confidence
+score. Verified two ways: dispatch exercised directly for all 11
+categories at confidence 0.99 routes 11/11 correctly (escalation
+categories reach the human queue despite maximum confidence),
+and the golden benchmark re-run the same day against the
+10-document index reads Schema 100% / Routing 100% (10/10),
+with G09 escalating through the gate itself at similarity
+0.715. The earlier 100% was doubly accidental — a missing index
+and a dead gate; this one is earned. The golden-set expansion
+(10 to 50) remains tracked in the eval work.

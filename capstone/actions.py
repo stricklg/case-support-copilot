@@ -75,18 +75,23 @@ def dispatch_action(ticket: InboundTicket, triage_output: Any) -> ExecutionResul
         triage_output.category, "value", str(triage_output.category)
     ).lower()
     priority = getattr(triage_output, "priority", "normal")
-    #Categories that always require human review
+    # Categories that always require human review. These strings must
+    # match the Category enum values in main.py exactly: the previous
+    # labels ("sso configuration", "custom export", "security
+    # compliance") matched no enum value, so the SSO and data-export
+    # escalations never fired and routing fell to the confidence
+    # number alone.
     ESCALATION_CATEGORIES = {
         "feature request",
-        "custom export",
-        "sso configuration",
-        "security compliance",
+        "auth/sso provisioning",
+        "data export compliance",
         "other",
     }
+    is_escalation = category.lower() in ESCALATION_CATEGORIES
 
     # Confidence Gate: >= .65 and not an automatic escalation category-> Automated CRM
     if (
-        confidence >= CONFIDENCE_THRESHOLD and category.lower() not in ESCALATION_CATEGORIES
+        confidence >= CONFIDENCE_THRESHOLD and not is_escalation
     ):
         crm_res = sync_to_mock_crm(ticket, triage_output)
         return ExecutionResult(
@@ -98,11 +103,16 @@ def dispatch_action(ticket: InboundTicket, triage_output: Any) -> ExecutionResul
         )
 
     # Low Confidence / Ambiguous / Other -> HITL Queue with user SLA
-    reason = (
-        f"Low confidence ({confidence:.2f} < {CONFIDENCE_THRESHOLD})"
-        if category.lower() != "other"
-        else "Classified as out-of-scope/other"
-    )
+    if category.lower() == "other":
+        reason = "Classified as out-of-scope/other"
+    elif is_escalation:
+        reason = (
+            f"Escalation category ({category}) requires human review"
+        )
+    else:
+        reason = (
+            f"Low confidence ({confidence:.2f} < {CONFIDENCE_THRESHOLD})"
+        )
 
     hitl_res = route_to_hitl_queue(ticket, triage_output, reason=reason)
     sla_text = format_sla_notice(priority=priority, category=category)
