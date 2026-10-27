@@ -189,6 +189,24 @@ def run_pipeline(
         total_ms = (time.perf_counter() - total_start) * 1000
         return 200, {
             "ticket": ticket.model_dump(),
+            "triage": {
+                "category": getattr(
+                    triage_output.category, "value",
+                    str(triage_output.category),
+                ),
+                "priority": getattr(
+                    triage_output.priority, "value",
+                    str(triage_output.priority),
+                ),
+                "confidence": triage_output.confidence,
+                "draft_reply": triage_output.draft_reply,
+            },
+            "retrieval": {
+                "matched_kb": retrieval_match.matched_kb,
+                "similarity_score": retrieval_match.similarity_score,
+                "is_deflected": retrieval_match.is_deflected,
+                "matched_content": retrieval_match.matched_content,
+            },
             "execution": exec_result.model_dump(),
             "total_latency_ms": total_ms,
         }
