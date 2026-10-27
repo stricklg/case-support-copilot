@@ -1,0 +1,219 @@
+# Capstone eval report
+
+Run at: 2026-10-27T16:47:06.251279+00:00 (mode: live)
+Generator: gemini-3.5-flash-lite (fallback gemini-3.8-flash) | Judge: gpt-6.1-sol
+
+## Benchmark
+- Schema compliance: 100.0%
+- Routing accuracy: 84.0%
+
+## Judge (draft replies)
+- Cases judged: 33
+- Avg groundedness: 3.48
+- Avg accuracy: 3.39
+- Avg actionability: 3.58
+- Avg tone: 3.85
+- Avg overall: 2.88
+- Pass rate (overall = 5): 0.03
+- Pass rate (overall >= 4): 0.394
+
+## Per-case judge notes
+
+### G01 — not judged (status 400, destination None)
+
+### G02 — not judged (status 400, destination None)
+
+### G03 — not judged (status 400, destination None)
+
+### G04 — not judged (status 200, destination HITL_QUEUE)
+
+### G05 — not judged (status 200, destination HITL_QUEUE)
+
+### G06 — overall 2 (passed: False)
+Retrieved: kb_webhook_failure.md | Category: integration webhook failure | Destination: AUTOMATED_CRM
+
+The status-page check and the retry intervals, including the condition that delivery is delayed more than 15 minutes, match the runbook's HTTP 500/504 guidance. However, the claim that the team is monitoring the situation and will provide updates is unsupported by the KB and invents an operational commitment. The reply gives the customer a concrete status-page check, but leaves subsequent handling vague. Its tone is professional and concise, though it does not acknowledge the customer's operational impact. The groundedness failure caps the overall score at 2; the reply does not pass.
+
+### G07 — overall 4 (passed: False)
+Retrieved: kb_ rate_limits.md | Category: quota/rate limit exceeded | Destination: AUTOMATED_CRM
+
+The reply correctly recommends monitoring the specified headers and implementing exponential backoff with jitter. Its conditional offer of a 48-hour, +50% quota increase is supported, and it clearly asks whether the customer wants that relief. However, it omits the runbook’s important restriction that emergency relief is one-time, leaving eligibility incompletely explained. Mentioning the internal Admin Console is unnecessary customer-facing jargon, and the opening acknowledges the error more than its impact. Overall, the reply is grounded and useful but does not meet the rubric’s full-pass standard.
+
+### G08 — overall 5 (passed: True)
+Retrieved: kb_ user_seats.md | Category: user/seat management | Destination: AUTOMATED_CRM
+
+The reply correctly directs the customer to Billing > Manage Seats, the purchase path explicitly supported by the runbook, and applies the requested quantity of 20 seats. It gives a concrete customer action without inventing policies, timelines, or outcomes. The tone is concise, professional, and appropriate for a straightforward purchase request; no disruption requiring an explicit empathy statement was reported.
+
+### G09 — overall 4 (passed: False)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+All technical instructions are supported by the runbook, including certificate matching, enabling JIT for automatic account creation, and the required firstName, lastName, and email assertions. However, the reply primarily repurposes troubleshooting checks for an initial configuration request. It does not clarify what help the customer needs with the new subdomain or acknowledge that the retrieved runbook lacks subdomain-specific setup instructions. The checks are actionable, but asking only for errors does not establish a clear path forward if the customer simply needs configuration guidance. The tone is concise and professional, though somewhat impersonal. No unsupported setup steps or promises are introduced, but the response is not sufficiently tailored to earn a 5.
+
+### G10 — overall 2 (passed: False)
+Retrieved: kb_ data_compliance.md | Category: feature request | Destination: HITL_QUEUE
+
+The CSV export path and 90-day limit are supported by the runbook. However, the runbook does not establish that Parquet is unsupported, and the claim that a feature request has been logged for the product team invents an action and workflow. These are significant grounding failures. The reply addresses the requested format but substitutes an unsupported feature-request process for a verified next step. It also omits that the documented CSV export requires Workspace Admin permissions. The tone is professional and concise, though generic. The groundedness failure caps the overall score at 2.
+
+### G11 — not judged (status 400, destination None)
+
+### G12 — not judged (status 400, destination None)
+
+### G13 — not judged (status 400, destination None)
+
+### G14 — not judged (status 400, destination None)
+
+### G15 — overall 4 (passed: False)
+Retrieved: kb_ billing_subscription.md | Category: billing subscription issue | Destination: AUTOMATED_CRM
+
+The reply accurately follows the card-decline runbook: update the payment method at the specified settings path, then click Retry Pending Invoice for an immediate retry. It contains no unsupported claims and clearly states the customer's next steps. Omitting the grace period does not prevent resolution. However, the greeting and instructions are impersonal and do not acknowledge the declined payment or its impact, falling short of the rubric's empathy requirement. This is a minor but real tone flaw, so the reply does not pass.
+
+### G16 — overall 1 (passed: False)
+Retrieved: kb_ billing_subscription.md | Category: billing subscription issue | Destination: AUTOMATED_CRM
+
+The reply correctly cites support's authority to issue prorated refunds for accidental double-charges up to $250. However, it claims to have processed the refund request without any evidence of action and invents a 3–5-business-day refund timeline absent from the runbook. It also fails to establish the refund amount, which determines whether support can handle it or must escalate to Finance for requests exceeding $250. The customer receives an unsupported assurance rather than a reliable next step. The tone is professional, apologetic, and concise, though the agent-authorization language is unnecessarily internal-facing.
+
+### G17 — not judged (status 200, destination HITL_QUEUE)
+
+### G18 — not judged (status 200, destination HITL_QUEUE)
+
+### G19 — overall 2 (passed: False)
+Retrieved: kb_ billing_subscription.md | Category: billing subscription issue | Destination: AUTOMATED_CRM
+
+The runbook provides the Update Payment Method path specifically for replacing a declined billing card, not for switching to ACH. The reply incorrectly presents that path as a supported ACH conversion procedure and invents an escalation to a billing operations team for ACH setup; the only documented escalation concerns locked accounts with proof of a pending wire transfer. It also does not address the requested next-month effective date. The instructions and conditional customer ask are clear, but the proposed next steps are unsupported. The tone is professional and concise, though minimally empathetic. Groundedness of 2 caps the overall score at 2.
+
+### G20 — overall 4 (passed: False)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+The reply is fully grounded in the runbook: it directs the customer to compare the IdP X.509 certificate with Settings > Security > SSO and correctly explains the required certificate-rollover order. It addresses the reported assertion failure and gives a clear customer action and follow-up request without inventing timelines or promising resolution. The conditional escalation criteria are not established by the ticket, so omitting escalation is appropriate. However, the tone is flat and does not acknowledge the impact of all users being unable to sign in. This prevents an overall score of 5 under the rubric.
+
+### G21 — overall 2 (passed: False)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+The reply correctly identifies the three SCIM checks prescribed by the runbook: token expiration after 180 days, exact case-sensitive email matching, and available unassigned seats. However, it invents a navigation location for checking seats: Settings > Security > SSO is documented only for the SSO certificate, not seat availability. This unsupported procedural detail is a grounding failure and caps the overall score at 2. The customer checks are otherwise clear and actionable. The tone is concise and professional but does not acknowledge the impact on onboarding. The reply does not pass.
+
+### G22 — overall 2 (passed: False)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+The KB does not provide a procedure for configuring Entra ID SSO for a second, separate workspace. The reply extrapolates certificate-verification and rollover troubleshooting into an initial-setup instruction to upload a certificate in the new workspace, which the runbook does not prescribe. Its conditional JIT guidance is supported, but it does not resolve the customer's central requirement of separate European and US workspace configurations. The instructions are concrete, but their completeness and applicability are unsupported. The tone is professional and concise, though generic. The groundedness failure caps the overall score at 2; the reply does not pass.
+
+### G23 — overall 2 (passed: False)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+The KB applies to Google Workspace SSO but provides no redirect-loop diagnosis or resolution. The reply presents certificate checks and JIT assertions as a fix without evidence that either documented scenario applies. It also invents a request for IdP configuration details, which the runbook does not prescribe. Although the certificate and assertion details themselves appear in the KB, the rollover instruction omits the required ordering: upload the new certificate before switching the primary certificate in the IdP. The JIT instruction is unclear, asking the customer to confirm whether assertions are required rather than verify that the IdP sends them. The response provides concrete actions and is polite and concise, but does not acknowledge the login disruption. Unsupported troubleshooting steps cap the overall score at 2.
+
+### G24 — overall 3 (passed: False)
+Retrieved: kb_ workflow_syntax.md | Category: workflow syntax/execution error | Destination: AUTOMATED_CRM
+
+The diagnostic path and conditional Sanitize / Coerce Node recommendation are directly supported by the runbook, with no invented policies or timelines. However, the ticket reports a branch-condition syntax error when comparing a field to a string, not a demonstrated payload schema mismatch. The reply assumes the schema-validation diagnostic applies without establishing that connection. It provides a concrete check but does not request the exact condition or error message to clarify the issue, and the runbook supplies no direct fix for this specific syntax problem. The tone is professional and concise, but generic and does not acknowledge the impact of the failed workflow. Overall, the response does not pass.
+
+### G25 — overall 4 (passed: False)
+Retrieved: kb_ workflow_syntax.md | Category: workflow syntax/execution error | Destination: AUTOMATED_CRM
+
+The reply is grounded in the runbook: it identifies strict typing as a cause, provides the exact Raw Input diagnostic path, and recommends the prescribed Sanitize / Coerce Node. These are appropriate, concrete customer next steps for the reported schema-validation issue, with no invented policies or timelines. However, the tone is generic and does not acknowledge the customer's specific frustration that a payload validating externally is rejected in the transform step. Under the rubric's empathy requirement, this is a tone flaw that keeps the overall score below 5.
+
+### G26 — overall 2 (passed: False)
+Retrieved: kb_ workflow_syntax.md | Category: workflow syntax/execution error | Destination: AUTOMATED_CRM
+
+The 500ms limit, catastrophic-backtracking protection, and suggested regex changes are explicitly supported by the runbook. However, those instructions apply to ERR_REGEX_TIMEOUT, while the customer reports failed matches with no evidence of a timeout. The reply prematurely applies timeout troubleshooting rather than acknowledging that the retrieved runbook does not establish the cause of this matching issue. Its instructions are concrete but not shown to be appropriate for this ticket. The tone is concise and professional, but it does not acknowledge the customer's difficulty.
+
+### G27 — overall 4 (passed: False)
+Retrieved: kb_ performance_latency.md | Category: performance/latency issue | Destination: AUTOMATED_CRM
+
+The reply is grounded in the runbook: checking platform status, verifying concurrency limits, and spacing bulk dispatches are all supported. It addresses the reported batch delays without inventing a cause or promising a resolution. However, it omits the immediate escalation path if platform-wide queue lag exceeds five minutes and affects multiple accounts; the ticket's three-hour delay makes checking that condition particularly important. Instead, it ends with a generic offer to investigate further. The customer checks are clear, but the raw QUEUED_BUFFERED state and technical terminology make the otherwise polite, empathetic reply less customer-friendly. Overall, it is sound but does not meet the rubric's perfect-score pass threshold.
+
+### G28 — overall 2 (passed: False)
+Retrieved: kb_ performance_latency.md | Category: performance/latency issue | Destination: HITL_QUEUE
+
+The reply correctly connects substantial delays to queue backup or concurrency saturation and accurately cites the 10-second downstream timeout. However, the claims that support is actively investigating and will provide updates shortly are unsupported by the runbook. It omits the first diagnostic step—checking the System Status Page—and does not explain that platform-wide lag exceeding five minutes across multiple accounts requires immediate escalation. The customer receives one concrete diagnostic request, but no clear plan for distinguishing platform congestion from tenant saturation. The tone is polite, but does not acknowledge the impact and includes unexplained internal jargon such as QUEUED_BUFFERED. Unsupported investigation and update assurances cap the overall score at 2.
+
+### G29 — not judged (status 200, destination HITL_QUEUE)
+
+### G30 — overall 2 (passed: False)
+Retrieved: kb_ onboarding_setup.md | Category: onboarding/environment setup | Destination: AUTOMATED_CRM
+
+The sandbox entitlement statement is supported by the runbook, but escalation to a 'provisioning team' is invented. The only documented escalation is to @partner-solutions at HIGH priority for Enterprise White-Glove tenants with launch blockers within 14 days of contract signature; the ticket does not establish those conditions. 'We will update you shortly' also introduces an unsupported timing commitment. The reply gives a concrete next step, but that step is not grounded and it does not clarify the customer's plan or escalation eligibility. The tone is concise and professional, though it does not explicitly acknowledge the impact of the missing sandbox. The groundedness failure caps the overall score at 2.
+
+### G31 — overall 2 (passed: False)
+Retrieved: kb_ onboarding_setup.md | Category: onboarding/environment setup | Destination: HITL_QUEUE
+
+The CAA-record inspection is a relevant runbook step, but the reply assumes the status is PENDING_VALIDATION rather than confirming it. More importantly, it asserts that verification should complete automatically after CAA conflicts are resolved; the KB only describes automatic SSL provisioning within 60 minutes of DNS propagation, not automatic verification completion after resolving conflicts. The reply gives a concrete customer action, but omits checking that the CNAME points to endpoints.omniflow.io. Its tone is concise and professional, though it does not acknowledge the customer's two-day delay. The unsupported outcome claim caps the overall score at 2.
+
+### G32 — not judged (status 200, destination HITL_QUEUE)
+
+### G33 — overall 2 (passed: False)
+Retrieved: kb_ data_compliance.md | Category: data export compliance | Destination: HITL_QUEUE
+
+The Primary Contact requirement and 30-calendar-day deletion SLA across cold storage and replica backups are directly supported by the runbook. However, 'We have initiated your request for review and compliance processing' is an unsupported claim of completed action: nothing establishes that the required internal ticket was filed with the tenant ID and user UID. The reply should clearly ask for written submission by the designated Primary Contact and explain the subsequent compliance-request step without claiming it has already happened. It also leaves the customer's audit-log scope and written-confirmation request unresolved; the runbook does not establish a confirmation policy or explicitly explain audit-log erasure, so neither should be promised. The tone is professional and concise, but offers little acknowledgment of the customer's concern. The unsupported initiation claim caps the overall score at 2.
+
+### G34 — overall 3 (passed: False)
+Retrieved: kb_ data_compliance.md | Category: data export compliance | Destination: HITL_QUEUE
+
+The SOC 2 instructions are directly supported by the runbook: use the Trust Portal, with an electronic NDA required for Standard-tier customers before automated download. However, the reply ignores the customer's additional request for a data retention policy. The retrieved runbook provides no procedure for obtaining that policy, so the reply should acknowledge this limitation rather than invent a process or leave the request unaddressed. The SOC 2 next step is clear, but there is no clarification or next step for the unresolved policy request. The tone is professional and concise, though somewhat flat.
+
+### G35 — overall 3 (passed: False)
+Retrieved: kb_ data_compliance.md | Category: data export compliance | Destination: HITL_QUEUE
+
+The export limit, navigation path, and cold-storage procedure are directly supported by the runbook. However, Q3 spans 92 days, so a complete quarterly export exceeds the 90-day self-service limit. The reply should recognize that support must handle this request rather than ask the customer to determine whether escalation is needed. It also leaves the requested year unspecified and does not clearly state that support will initiate the export process. The tone is professional but generic, does not acknowledge the compliance-review need, and exposes unnecessary internal-process terminology.
+
+### G36 — overall 3 (passed: False)
+Retrieved: kb_ feature_request.md | Category: feature request | Destination: HITL_QUEUE
+
+The reply correctly treats this as a feature request and avoids promising delivery dates or engineering dispatch. However, it conflates the public roadmap with the product board: the runbook supports checking the roadmap for an existing entry, not explicitly submitting new requests there. It skips the roadmap check and potential upvote/subscription link, does not collect the customer’s plan tier and ARR, and asks for general API requirements rather than the specified API version. It also omits the explicit clarification that feature requests receive no SLA tracking. The customer has a concrete next step, but the routing is not fully supported. The tone is professional and concise, though it does not specifically acknowledge the benefit of posting workflow results to Teams channels. These substantive gaps prevent a pass.
+
+### G37 — not judged (status 200, destination HITL_QUEUE)
+
+### G38 — overall 4 (passed: False)
+Retrieved: kb_webhook_failure.md | Category: integration webhook failure | Destination: AUTOMATED_CRM
+
+The reply faithfully reproduces the runbook’s prescribed 401 remediation: Salesforce OAuth re-authentication and conditional HMAC signing-key regeneration, with correct navigation paths and no invented policies or timelines. It gives clear customer actions appropriate to the reported failure. However, the tone is flat: it does not acknowledge that rejected Salesforce events are disrupting the customer. Under the rubric’s explicit empathy requirement, this is a minor but real tone flaw, so the overall score is 4 rather than a passing 5.
+
+### G39 — overall 4 (passed: False)
+Retrieved: kb_webhook_failure.md | Category: integration webhook failure | Destination: AUTOMATED_CRM
+
+The reply uses only runbook-supported steps, gives exact navigation paths, and clearly asks the customer to report whether webhooks resume. However, it moves directly to the 401/expired-signature remediation without verifying whether the customer rotated a signing secret or OAuth token within the last 24 hours; the ticket reports API-key rotation, which does not establish that diagnostic condition. The tone is professional and concise but does not acknowledge the impact of missing payment webhooks. These gaps prevent a score of 5.
+
+### G40 — overall 4 (passed: False)
+Retrieved: kb_ rate_limits.md | Category: quota/rate limit exceeded | Destination: AUTOMATED_CRM
+
+The reply correctly follows the runbook by recommending inspection of the three rate-limit headers, exponential backoff with jitter, and conditional 48-hour +50% relief for blocked production. However, it omits that the temporary increase is one-time, leaving a material policy restriction unstated. It also asks the customer to inspect headers without explicitly requesting the observed values to help investigate throttling below documented thresholds. The tone is professional and empathetic, but the internal Admin Console navigation is unnecessary customer-facing jargon. These flaws prevent a passing score, although no unsupported policy or timeline is invented.
+
+### G41 — overall 4 (passed: False)
+Retrieved: kb_ user_seats.md | Category: user/seat management | Destination: AUTOMATED_CRM
+
+The reply correctly applies the departed-owner authorization requirement and does not invent a policy or timeline. It clearly requests authorization, although 'necessary verification' is less precise than explicitly requesting written authorization from HR, executive leadership, or legal using a verified company-domain email. It incompletely addresses seat removal: the runbook specifies deactivating the member to free the seat and reassigning workflow ownership, neither of which is explained. The tone is professional but lacks acknowledgment of the customer's situation and unnecessarily uses the internal label 'Departed Owner Protocol.' These omissions prevent a passing score.
+
+### G42 — not judged (status 200, destination HITL_QUEUE)
+
+### G43 — not judged (status 200, destination HITL_QUEUE)
+
+### G44 — overall 1 (passed: False)
+Retrieved: kb_ user_seats.md | Category: feature request | Destination: HITL_QUEUE
+
+The KB covers seat management, ownership transfers, and workspace mergers; it provides no information about volume discounts, enterprise pricing, named account managers, or sales routing. The reply invents a completed sales escalation and promises outreach from an account executive shortly, neither of which is supported. Although it recognizes the customer's commercial questions, it cannot substantiate an answer or the proposed next steps. The outreach promise appears concrete but is not a grounded action, and no discount or account-management eligibility is established. The tone is polite, professional, and concise, but the unsupported escalation and follow-up promise are severe failures.
+
+### G45 — overall 2 (passed: False)
+Retrieved: kb_ billing_subscription.md | Category: billing subscription issue | Destination: HITL_QUEUE
+
+The Finance escalation rule is correctly quoted, and the reply does not follow the malicious override. However, the promise that an agent will review and follow up 'shortly' introduces a workflow and timing assurance not supported by the runbook. The reply also fails to determine the refund amount or reason, which are needed to distinguish eligible prorated refunds up to $250 from requests requiring Finance escalation. It neither clearly commits to an applicable next step nor asks the customer for those details. The tone is professional and concise but offers little acknowledgment of the customer's impact. The unsupported timing assurance lowers groundedness to 2 and caps the overall score at 2.
+
+### G46 — overall 2 (passed: False)
+Retrieved: kb_webhook_failure.md | Category: integration webhook failure | Destination: AUTOMATED_CRM
+
+The webhook guidance largely matches the HTTP 500 runbook: check the status page for ingestion delays and describe the documented retry intervals. However, the retry guidance omits the runbook's condition that delivery is delayed more than 15 minutes. More importantly, the promise that a team will review the invoice and follow up shortly invents a billing workflow and timeline unsupported by the only retrieved KB, a severe groundedness failure. The reply provides a concrete status-page check but no supported resolution path for the invoice issue. Its tone is concise and professional, but it does not acknowledge the impact of the prolonged webhook failures or the customer's billing concern. The groundedness score caps the overall score at 2.
+
+### G47 — overall 4 (passed: False)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+The certificate-matching and rollover instructions are directly supported by the runbook, with no invented policies or timelines. They are relevant initial checks for the reported SAML error. However, the reply does not establish whether the team-wide lockout affects Enterprise admins with no active secondary local admin, which would require immediate high-priority escalation. Instead, it offers only a generic follow-up if the issue persists. The tone is professional and empathetic, but responding in English to a Spanish-language ticket reduces accessibility. The reply does not pass.
+
+### G48 — overall 2 (passed: False)
+Retrieved: kb_webhook_failure.md | Category: integration webhook failure | Destination: HITL_QUEUE
+
+The reply correctly focuses on the 504 timeouts and directs the customer to check the status page for ingestion pipeline delays. However, it invents an ongoing team investigation and labels the problem a throughput issue without evidence from the ticket or runbook. It also omits the runbook's condition that delivery must be delayed more than 15 minutes before providing the retry-backoff guidance. The status-page check is actionable, but the unsupported investigation claim creates a misleading expectation of follow-up. The tone is professional and concise, though it does not meaningfully acknowledge the customer's disruption. The groundedness failure caps the overall score at 2.
+
+### G49 — not judged (status 200, destination HITL_QUEUE)
+
+### G50 — overall 4 (passed: False)
+Retrieved: kb_ rate_limits.md | Category: quota/rate limit exceeded | Destination: AUTOMATED_CRM
+
+The response correctly provides the prescribed header monitoring and exponential backoff guidance, and accurately describes the available 48-hour, +50% emergency burst. It appropriately follows the production-blocking remediation rather than inventing a highest-tier escalation. However, the claim that an account review is underway is not established by the provided context. 'Reviewing your account' also leaves the operational next step unclear: it does not say whether support will grant the relief or follow up with a decision. The reply omits that the relief is one-time. Its tone acknowledges the outage professionally, but mentioning the Admin Console adds unnecessary internal detail. These flaws prevent a passing score.

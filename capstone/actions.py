@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Any, Dict, Optional
 from pydantic import BaseModel, Field
 from schemas import InboundTicket
-from config import CONFIDENCE_THRESHOLD
+from config import CONFIDENCE_THRESHOLD, MARGIN_FLOOR
 
 class RoutingDesignation(str, Enum):
     AUTOMATED_CRM = "AUTOMATED_CRM"
@@ -89,9 +89,22 @@ def dispatch_action(ticket: InboundTicket, triage_output: Any) -> ExecutionResul
     }
     is_escalation = category.lower() in ESCALATION_CATEGORIES
 
+    # Margin Gate: a contested runbook match (the winner barely
+    # beat another runbook's best chunk) goes to human review no
+    # matter what the model reports about its own confidence.
+    # Measured 2026-10-27: every category error in the golden set
+    # sat in the bottom of the margin distribution while carrying
+    # self-reported confidence 0.95.
+    margin = getattr(triage_output, "retrieval_margin", None)
+    margin_contested = (
+        margin is not None and margin < MARGIN_FLOOR
+    )
+
     # Confidence Gate: >= .65 and not an automatic escalation category-> Automated CRM
     if (
-        confidence >= CONFIDENCE_THRESHOLD and not is_escalation
+        confidence >= CONFIDENCE_THRESHOLD
+        and not is_escalation
+        and not margin_contested
     ):
         crm_res = sync_to_mock_crm(ticket, triage_output)
         return ExecutionResult(
@@ -108,6 +121,11 @@ def dispatch_action(ticket: InboundTicket, triage_output: Any) -> ExecutionResul
     elif is_escalation:
         reason = (
             f"Escalation category ({category}) requires human review"
+        )
+    elif margin_contested:
+        reason = (
+            f"Ambiguous runbook match (margin {margin:.3f} "
+            f"< {MARGIN_FLOOR}) requires human review"
         )
     else:
         reason = (

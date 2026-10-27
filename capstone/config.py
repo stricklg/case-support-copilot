@@ -20,3 +20,14 @@ KEYWORD_RESCUE_MIN_SIMILARITY = float(
     os.getenv('KEYWORD_RESCUE_MIN_SIMILARITY', '0.60'))
 KEYWORD_RESCUE_MARGIN = float(
     os.getenv('KEYWORD_RESCUE_MARGIN', '1.25'))
+
+# Margin floor (dispatch): when the winning runbook only narrowly
+# beats the best chunk from any other runbook, the match is
+# contested and the ticket goes to human review regardless of the
+# model's self-reported confidence. Calibrated on the 50-case
+# golden set (2026-10-27): all three category errors measured
+# that day (G10, G44, G45) had margins at or below 0.057 while
+# carrying self-reported confidence 0.95, and the top half of
+# margins (>= 0.083) had zero errors. In-sample calibration;
+# revisit as the golden set grows.
+MARGIN_FLOOR = float(os.getenv('MARGIN_FLOOR', '0.05'))

@@ -63,7 +63,24 @@ class TriageOutput(BaseModel):
     priority: Priority
     confidence: Optional[float] = Field(
         default=None,
-        ge=0.0, le=1.0 
+        ge=0.0, le=1.0,
+        description=("The triage model's own confidence in its "
+          "categorization, 0.0 to 1.0. This is the only confidence "
+          "the dispatch gate reads."),
+    )
+    retrieval_similarity: Optional[float] = Field(
+        default=None,
+        ge=0.0, le=1.0,
+        description=("Retrieval similarity of the matched runbook, "
+          "set by the pipeline after the model call. Never used as "
+          "model confidence."),
+    )
+    retrieval_margin: Optional[float] = Field(
+        default=None,
+        description=("Margin between the winning runbook's best "
+          "chunk score and the best chunk from any other runbook, "
+          "set by the pipeline after the model call. The dispatch "
+          "margin floor reads it; it is never model confidence."),
     )
     action_needed: bool = Field(
         description=("True if the ticket requires operational handling, troubleshooting, "
@@ -199,6 +216,10 @@ def run_pipeline(
                     str(triage_output.priority),
                 ),
                 "confidence": triage_output.confidence,
+                "retrieval_similarity":
+                    triage_output.retrieval_similarity,
+                "retrieval_margin":
+                    triage_output.retrieval_margin,
                 "draft_reply": triage_output.draft_reply,
             },
             "retrieval": {
@@ -230,7 +251,10 @@ def triage_and_categorize(ticket_text: str, kb) -> TriageOutput:
         return TriageOutput(
             category=Category.OTHER,
             priority=Priority.LOW,
-            confidence=round(retrieval.similarity_score, 2),
+            confidence=0.0,
+            retrieval_similarity=round(
+                retrieval.similarity_score, 3),
+            retrieval_margin=round(retrieval.margin, 3),
             action_needed=True,
             draft_reply=(
                 "Thank you for reaching out to OmniFlow support. Your inquiry "
@@ -270,7 +294,17 @@ def triage_and_categorize(ticket_text: str, kb) -> TriageOutput:
         )
 
     result: TriageOutput = (response.parsed or TriageOutput.model_validate_json(response.text))
-    result.confidence = round(retrieval.similarity_score, 2)
+    # Keep the two signals separate: the model's confidence stays
+    # the model's (the dispatch gate reads it), and the retrieval
+    # similarity is recorded on its own field. Until 2026-10-27
+    # this line overwrote confidence with the similarity, so the
+    # dispatch gate re-judged retrieval instead of triage quality.
+    result.retrieval_similarity = round(
+        retrieval.similarity_score, 3)
+    result.retrieval_margin = round(retrieval.margin, 3)
+    if result.confidence is None:
+        # No self-reported confidence: route conservatively.
+        result.confidence = 0.0
     return result
 
 

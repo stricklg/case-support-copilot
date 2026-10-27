@@ -22,6 +22,7 @@ load_dotenv()
 class RetrievalResult:
     is_deflected: bool
     similarity_score: float
+    margin: float = 0.0
     matched_kb: Optional[str] = None
     matched_content: Optional[str] = None
 
@@ -186,19 +187,28 @@ class KB:
         best_score = -1.0
         best_doc = None
         best_content = None
+        doc_best = {}
         for doc_name, chunk_text, chunk_vec in self.chunks:
             score = float(np.dot(query_vec, chunk_vec))
+            if score > doc_best.get(doc_name, -1.0):
+                doc_best[doc_name] = score
             if score > best_score:
                 best_score = score
                 best_doc = doc_name
                 # Small-to-big: rank on the chunk, answer with
                 # the whole parent document.
                 best_content = self.index[doc_name][1]
+        # Margin: how decisively the winning document beat the
+        # best chunk from any other document. A near-zero margin
+        # means the ticket is contested between two runbooks.
+        others = [s for d, s in doc_best.items() if d != best_doc]
+        margin = best_score - max(others) if others else best_score
 
         if best_score >= self.threshold:
             return RetrievalResult(
                 is_deflected=False,
                 similarity_score=best_score,
+            margin=margin,
                 matched_kb=best_doc,
                 matched_content=best_content,
             )
@@ -206,12 +216,14 @@ class KB:
             return RetrievalResult(
                 is_deflected=False,
                 similarity_score=best_score,
+            margin=margin,
                 matched_kb=best_doc,
                 matched_content=best_content,
             )
         return RetrievalResult(
             is_deflected=True,
             similarity_score=best_score,
+            margin=margin,
             matched_kb=None,
             matched_content=None,
         )
