@@ -100,11 +100,23 @@ def dispatch_action(ticket: InboundTicket, triage_output: Any) -> ExecutionResul
         margin is not None and margin < MARGIN_FLOOR
     )
 
+    # Multi-Issue Gate: a ticket raising a second distinct issue
+    # goes to human review - automated handling resolves the
+    # primary category only, so the second issue would be closed
+    # unhandled. Geoff's rule, 2026-10-27 (golden case G46).
+    secondary = getattr(
+        triage_output, "secondary_categories", None) or []
+    secondary_labels = [
+        getattr(c, "value", str(c)) for c in secondary
+    ]
+    is_multi_issue = len(secondary_labels) > 0
+
     # Confidence Gate: >= .65 and not an automatic escalation category-> Automated CRM
     if (
         confidence >= CONFIDENCE_THRESHOLD
         and not is_escalation
         and not margin_contested
+        and not is_multi_issue
     ):
         crm_res = sync_to_mock_crm(ticket, triage_output)
         return ExecutionResult(
@@ -121,6 +133,11 @@ def dispatch_action(ticket: InboundTicket, triage_output: Any) -> ExecutionResul
     elif is_escalation:
         reason = (
             f"Escalation category ({category}) requires human review"
+        )
+    elif is_multi_issue:
+        reason = (
+            "Multiple distinct issues in one ticket (also: "
+            f"{', '.join(secondary_labels)}) require human review"
         )
     elif margin_contested:
         reason = (

@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, ValidationError
 from enum import Enum
 from google import genai
 from google.genai import types, errors
-from typing import Optional, Any, Dict, Tuple
+from typing import List, Optional, Any, Dict, Tuple
 from dotenv import load_dotenv
 from pathlib import Path
 import time
@@ -81,6 +81,18 @@ class TriageOutput(BaseModel):
           "chunk score and the best chunk from any other runbook, "
           "set by the pipeline after the model call. The dispatch "
           "margin floor reads it; it is never model confidence."),
+    )
+    secondary_categories: List[Category] = Field(
+        default_factory=list,
+        description=("Other distinct support issues raised in "
+          "the same ticket, beyond the primary category. A "
+          "distinct issue is a separate problem that would need "
+          "its own handling; symptoms, consequences, error "
+          "details, and background events are not separate "
+          "issues. List an issue only when the customer is "
+          "reporting a problem with it or requesting action "
+          "on it; a fact mentioned in passing is not an issue. "
+          "Empty when the ticket raises one issue."),
     )
     action_needed: bool = Field(
         description=("True if the ticket requires operational handling, troubleshooting, "
@@ -220,6 +232,16 @@ def run_pipeline(
                     triage_output.retrieval_similarity,
                 "retrieval_margin":
                     triage_output.retrieval_margin,
+                "action_needed":
+                    getattr(triage_output, "action_needed", None),
+                "secondary_categories": [
+                    getattr(c, "value", str(c))
+                    for c in (
+                        getattr(
+                            triage_output,
+                            "secondary_categories", None) or []
+                    )
+                ],
                 "draft_reply": triage_output.draft_reply,
             },
             "retrieval": {
