@@ -1,0 +1,10 @@
+# Minimal dependency set for the eval pipeline: run_capstone_eval.py
+# and everything it imports (main, context_engine, judge, rubrics,
+# dashboard). The repo-root requirements.txt is a 65-package freeze of
+# the full dev environment (streamlit, jupyter, opencv) - the Kestra
+# task containers install only what the eval actually imports.
+# Pins match the proven local venv, 2026-10-30.
+pydantic==2.13.4
+google-genai==2.8.0
+python-dotenv==1.2.2
+numpy==2.5.1

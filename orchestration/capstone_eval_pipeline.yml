@@ -1,0 +1,84 @@
+id: capstone_eval_pipeline
+namespace: capstone
+description: >
+  Regression gate for the case-support-copilot eval. Copies the
+  capstone out of the repo into a scratch workdir, runs the full
+  50-case eval (pipeline + reply judge + triage judge), builds the
+  dashboard, and fails the execution if any quality floor is
+  breached. Each task creates its container through the Docker
+  socket API with explicit binds: in this install, both of
+  Kestra's container task types silently drop their volumes
+  property (verified by container inspect across three probes,
+  2026-10-30), so the flow drives the daemon directly and Kestra
+  provides scheduling, secrets, logging and the gate semantics.
+  The schedule trigger ships DISABLED (2026-10-30): every run
+  spends real Gemini and OpenAI calls, so the daily cadence is
+  enabled deliberately, not by default. This file is the source
+  of truth - see orchestration/README.md in the repo.
+
+variables:
+  routing_floor: "80"
+  reply_judge_floor: "2.7"
+  triage_judge_floor: "3.8"
+
+tasks:
+  - id: run_eval
+    type: io.kestra.plugin.scripts.shell.Commands
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    timeout: PT30M
+    env:
+      GEMINI_API_KEY: "{{ secret('GEMINI_API_KEY')}}"
+      OPENAI_API_KEY: "{{ secret('OPENAI_API_KEY')}}"
+    commands:
+      - |
+        PAYLOAD=$(printf '{"Image":"python:3.12-slim","Tty":true,"Cmd":["sh","/src/orchestration/run_eval.sh","{{ execution.id }}"],"Env":["GEMINI_API_KEY=%s","OPENAI_API_KEY=%s"],"HostConfig":{"Binds":["/home/geoff/dev/capstone-public:/src:ro","/home/geoff/dev/kestra-wd:/workdir"]}}' "$GEMINI_API_KEY" "$OPENAI_API_KEY")
+        CID=$(printf '%s' "$PAYLOAD" | curl -s --unix-socket /var/run/docker.sock -X POST -H 'Content-Type: application/json' --data-binary @- http://localhost/containers/create | grep -o '"Id":"[a-f0-9]*"' | cut -d'"' -f4)
+        [ -n "$CID" ] || exit 97
+        curl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/$CID/start > /dev/null
+        CODE=$(curl -s --unix-socket /var/run/docker.sock -X POST "http://localhost/containers/$CID/wait" | grep -o '"StatusCode":[0-9]*' | cut -d: -f2)
+        curl -s --unix-socket /var/run/docker.sock "http://localhost/containers/$CID/logs?stdout=true&stderr=true"
+        curl -s --unix-socket /var/run/docker.sock -X DELETE "http://localhost/containers/$CID?force=true" > /dev/null
+        [ -n "$CODE" ] || CODE=98
+        exit $CODE
+
+  - id: build_dashboard
+    type: io.kestra.plugin.scripts.shell.Commands
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    timeout: PT10M
+    commands:
+      - |
+        PAYLOAD=$(printf '{"Image":"python:3.12-slim","Tty":true,"Cmd":["python","/workdir/runs/{{ execution.id }}/capstone/eval/dashboard.py","--all","--reports-root","/workdir/eval-archive"],"HostConfig":{"Binds":["/home/geoff/dev/kestra-wd:/workdir"]}}')
+        CID=$(printf '%s' "$PAYLOAD" | curl -s --unix-socket /var/run/docker.sock -X POST -H 'Content-Type: application/json' --data-binary @- http://localhost/containers/create | grep -o '"Id":"[a-f0-9]*"' | cut -d'"' -f4)
+        [ -n "$CID" ] || exit 97
+        curl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/$CID/start > /dev/null
+        CODE=$(curl -s --unix-socket /var/run/docker.sock -X POST "http://localhost/containers/$CID/wait" | grep -o '"StatusCode":[0-9]*' | cut -d: -f2)
+        curl -s --unix-socket /var/run/docker.sock "http://localhost/containers/$CID/logs?stdout=true&stderr=true"
+        curl -s --unix-socket /var/run/docker.sock -X DELETE "http://localhost/containers/$CID?force=true" > /dev/null
+        [ -n "$CODE" ] || CODE=98
+        exit $CODE
+
+  - id: check_thresholds
+    type: io.kestra.plugin.scripts.shell.Commands
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    timeout: PT10M
+    commands:
+      - |
+        PAYLOAD=$(printf '{"Image":"python:3.12-slim","Tty":true,"Cmd":["python","/src/capstone/eval/check_thresholds.py","/workdir/eval-archive/{{ execution.id }}/eval_summary.json","{{ vars.routing_floor }}","{{ vars.reply_judge_floor }}","{{ vars.triage_judge_floor }}"],"HostConfig":{"Binds":["/home/geoff/dev/capstone-public:/src:ro","/home/geoff/dev/kestra-wd:/workdir"]}}')
+        CID=$(printf '%s' "$PAYLOAD" | curl -s --unix-socket /var/run/docker.sock -X POST -H 'Content-Type: application/json' --data-binary @- http://localhost/containers/create | grep -o '"Id":"[a-f0-9]*"' | cut -d'"' -f4)
+        [ -n "$CID" ] || exit 97
+        curl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/$CID/start > /dev/null
+        CODE=$(curl -s --unix-socket /var/run/docker.sock -X POST "http://localhost/containers/$CID/wait" | grep -o '"StatusCode":[0-9]*' | cut -d: -f2)
+        curl -s --unix-socket /var/run/docker.sock "http://localhost/containers/$CID/logs?stdout=true&stderr=true"
+        curl -s --unix-socket /var/run/docker.sock -X DELETE "http://localhost/containers/$CID?force=true" > /dev/null
+        [ -n "$CODE" ] || CODE=98
+        exit $CODE
+
+triggers:
+  - id: daily_eval
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 7 * * *"
+    timezone: America/Denver
+    disabled: true

@@ -231,11 +231,22 @@ pass at &gt;= 4: {summary.get('triage_pass_rate_at_4plus')}</p>
     return out
 
 
-def build_all():
-    reports = EVAL_DIR / "reports"
+def build_all(reports_root=None):
+    reports = Path(reports_root) if reports_root else \
+        EVAL_DIR / "reports"
     folders = sorted(
         p for p in reports.iterdir()
         if (p / "eval_summary.json").exists())
+
+    def _run_at(folder):
+        try:
+            summary = json.loads(
+                (folder / "eval_summary.json").read_text())
+            return summary.get("run_at", "")
+        except Exception:
+            return ""
+
+    folders.sort(key=_run_at)
     prev = None
     links = []
     for f in folders:
@@ -256,8 +267,10 @@ if __name__ == "__main__":
     ap.add_argument("folder", nargs="?", default=None)
     ap.add_argument("--prev", default=None)
     ap.add_argument("--all", action="store_true")
+    ap.add_argument("--reports-root", default=None)
     a = ap.parse_args()
     if a.all:
-        print("dashboards built for", build_all(), "runs")
+        print("dashboards built for",
+              build_all(a.reports_root), "runs")
     else:
         print("wrote", build(Path(a.folder), a.prev))
