@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Capstone eval - 20261027-145908</title>
+<style>
+body { font-family: -apple-system, sans-serif; margin: 2rem;
+  color: #1c1c1e; }
+table { border-collapse: collapse; margin: 0.5rem 0 1.5rem; }
+td, th { border: 1px solid #d1d1d6; padding: 4px 10px;
+  text-align: left; font-size: 14px; }
+.headline { display: flex; gap: 1rem; flex-wrap: wrap; }
+.card { border: 1px solid #d1d1d6; border-radius: 10px;
+  padding: 0.8rem 1.2rem; min-width: 130px; }
+.card .n { font-size: 26px; font-weight: 700; }
+.card .l { font-size: 12px; color: #636366; }
+.barcell { width: 220px; }
+.bar { background: #0a84ff; height: 12px; border-radius: 3px; }
+</style></head><body>
+<h1>Capstone eval dashboard</h1>
+<p>Run 20261027-145908 | mode replay |
+generator gemini-3.5-flash-lite | judge
+gpt-6.1-sol</p>
+<div class="headline">
+<div class="card"><div class="n">100.0%</div>
+<div class="l">schema compliance</div></div>
+<div class="card"><div class="n">90.0%</div>
+<div class="l">routing accuracy</div></div>
+<div class="card"><div class="n">3.6</div>
+<div class="l">reply judge overall</div></div>
+<div class="card"><div class="n">0.6</div>
+<div class="l">reply pass rate (&gt;= 4)</div></div>
+<div class="card"><div class="n">None</div>
+<div class="l">triage judge overall</div></div>
+<div class="card"><div class="n">None</div>
+<div class="l">triage pass rate (&gt;= 4)</div></div>
+</div>
+
+<h2>Routing misses (7)</h2>
+<table><tr><th>case</th><th>expected</th><th>got</th>
+<th>class</th><th>evidence</th></tr><tr><td>G04</td><td>HITL_QUEUE</td><td>RoutingDesignation.HITL_QUEUE</td><td>retrieval-deflect</td><td>no runbook accepted (similarity 0.520)</td></tr><tr><td>G05</td><td>HITL_QUEUE</td><td>RoutingDesignation.HITL_QUEUE</td><td>retrieval-deflect</td><td>no runbook accepted (similarity 0.500)</td></tr><tr><td>G06</td><td>AUTOMATED_CRM</td><td>RoutingDesignation.AUTOMATED_CRM</td><td>dispatch-gate</td><td>queued by confidence/escalation gate</td></tr><tr><td>G07</td><td>AUTOMATED_CRM</td><td>RoutingDesignation.AUTOMATED_CRM</td><td>dispatch-gate</td><td>queued by confidence/escalation gate</td></tr><tr><td>G08</td><td>AUTOMATED_CRM</td><td>RoutingDesignation.AUTOMATED_CRM</td><td>dispatch-gate</td><td>queued by confidence/escalation gate</td></tr><tr><td>G09</td><td>HITL_QUEUE</td><td>RoutingDesignation.AUTOMATED_CRM</td><td>dispatch-gate</td><td>queued by confidence/escalation gate</td></tr><tr><td>G10</td><td>HITL_QUEUE</td><td>RoutingDesignation.HITL_QUEUE</td><td>triage-category</td><td>expected data export compliance, got feature request</td></tr></table>
+<h2>Retrieval</h2>
+<p>Labelled cases: 7 | matched a runbook:
+5 | top-doc accuracy: 100.0% |
+intended automations deflected: 0 of
+3</p>
+<h2>Reply judge (n=5)</h2>
+<table><tr><td>groundedness</td><td class='barcell'><div class='bar' style='width:80%'></div></td><td>4.0</td></tr><tr><td>accuracy</td><td class='barcell'><div class='bar' style='width:80%'></div></td><td>4.0</td></tr><tr><td>actionability</td><td class='barcell'><div class='bar' style='width:76%'></div></td><td>3.8</td></tr><tr><td>tone</td><td class='barcell'><div class='bar' style='width:80%'></div></td><td>4.0</td></tr><tr><td>overall</td><td class='barcell'><div class='bar' style='width:72%'></div></td><td>3.6</td></tr></table>
+<p>Pass at 5: 0.2 |
+pass at &gt;= 4: 0.6</p>
+<h2>Triage judge (n=None)</h2>
+<table></table>
+<p>Pass at 5: None |
+pass at &gt;= 4: None</p>
+</body></html>

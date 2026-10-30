@@ -41,7 +41,7 @@ class JudgeEval(BaseModel):
 
     @property
     def passed(self) -> bool:
-        return self.score == 5
+        return self.score >= 4
 
 
 class CapstoneJudgeEval(BaseModel):
@@ -56,8 +56,26 @@ class CapstoneJudgeEval(BaseModel):
 
     @property
     def passed(self) -> bool:
-        # The notebook strict rule: pass only at a perfect score.
-        return self.overall == 5
+        # Pass bar (Geoff, 2026-10-30): overall 4 or 5 passes.
+        # The notebook's original rule was pass only at 5;
+        # pass-at-5 is still reported separately in run summaries.
+        return self.overall >= 4
+
+
+class TriageJudgeEval(BaseModel):
+    """Per-dimension scores for a capstone triage decision."""
+
+    category_fit: int = Field(ge=1, le=5)
+    priority_calibration: int = Field(ge=1, le=5)
+    action_needed: int = Field(ge=1, le=5)
+    issue_completeness: int = Field(ge=1, le=5)
+    overall: int = Field(ge=1, le=5)
+    explanation: str
+
+    @property
+    def passed(self) -> bool:
+        # Same pass bar as the reply judge (Geoff, 2026-10-30).
+        return self.overall >= 4
 
 
 def _strict_schema(model: type[BaseModel]) -> dict:
@@ -178,3 +196,46 @@ def evaluate_capstone_reply(
         expected_ground_truth, kb_context,
     )
     return _call_judge(prompt, CapstoneJudgeEval)
+
+
+def build_triage_judge_prompt(
+    ticket_text: str,
+    triage: dict,
+    rubric: str,
+    definitions: str,
+) -> str:
+    """Prompt for judging a triage decision (not a reply)."""
+    return f"""You are an impartial, highly critical AI evaluation judge.
+Your task is to evaluate a structured triage decision for quality
+and correctness against a provided rubric.
+
+== Evaluation Rubric ==
+{rubric}
+
+== Category and Priority Definitions ==
+{definitions}
+
+== Customer Ticket ==
+{ticket_text}
+
+== System Triage Output (JSON) ==
+{json.dumps(triage, indent=2)}
+
+Evaluate the triage decision objectively against the rubric.
+"""
+
+
+def evaluate_capstone_triage(
+    ticket_text: str,
+    triage: dict,
+    rubric: str,
+    definitions: Optional[str] = None,
+) -> TriageJudgeEval:
+    """Judge one capstone triage decision, per-dimension scores."""
+    if definitions is None:
+        definitions = (
+            CAPSTONE_DIR / "system_triage_instructions.md"
+        ).read_text(encoding="utf-8")
+    prompt = build_triage_judge_prompt(
+        ticket_text, triage, rubric, definitions)
+    return _call_judge(prompt, TriageJudgeEval)

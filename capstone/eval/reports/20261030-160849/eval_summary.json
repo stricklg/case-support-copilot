@@ -1,0 +1,34 @@
+{
+  "run_at": "2026-10-30T16:15:21.806067+00:00",
+  "mode": "live",
+  "generator_model": "gemini-3.5-flash-lite",
+  "fallback_model": "gemini-3.8-flash",
+  "judge_model": "gpt-6.1-sol",
+  "similarity_threshold": 0.65,
+  "confidence_threshold": 0.65,
+  "benchmark": {
+    "cases": 50,
+    "schema_compliance_pct": 100.0,
+    "routing_accuracy_pct": 86.0
+  },
+  "judged_cases": 33,
+  "judge_averages": {
+    "groundedness": 3.39,
+    "accuracy": 3.48,
+    "actionability": 3.55,
+    "tone": 3.82,
+    "overall": 3.06
+  },
+  "judge_pass_rate_at_5": 0.152,
+  "judge_pass_rate_at_4plus": 0.394,
+  "triage_judged_cases": 33,
+  "triage_judge_averages": {
+    "t_category_fit": 4.73,
+    "t_priority_calibration": 4.58,
+    "t_action_needed": 4.76,
+    "t_issue_completeness": 4.91,
+    "t_overall": 4.18
+  },
+  "triage_pass_rate_at_4plus": 0.758,
+  "triage_pass_rate_at_5": 0.576
+}

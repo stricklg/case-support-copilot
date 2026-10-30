@@ -1,0 +1,262 @@
+# Capstone eval report
+
+Run at: 2026-10-30T16:15:21.806067+00:00 (mode: live)
+Generator: gemini-3.5-flash-lite (fallback gemini-3.8-flash) | Judge: gpt-6.1-sol
+
+## Benchmark
+- Schema compliance: 100.0%
+- Routing accuracy: 86.0%
+
+## Judge (draft replies)
+- Cases judged: 33
+- Avg groundedness: 3.39
+- Avg accuracy: 3.48
+- Avg actionability: 3.55
+- Avg tone: 3.82
+- Avg overall: 3.06
+- Pass rate (overall = 5): 0.152
+- Pass rate (overall >= 4): 0.394
+
+## Judge (triage decisions)
+- Cases judged: 33
+- Avg t_category_fit: 4.73
+- Avg t_priority_calibration: 4.58
+- Avg t_action_needed: 4.76
+- Avg t_issue_completeness: 4.91
+- Avg t_overall: 4.18
+- Pass rate (overall >= 4): 0.758
+- Pass rate (overall = 5): 0.576
+
+## Per-case judge notes
+
+### G01 — not judged (status 400, destination None)
+
+### G02 — not judged (status 400, destination None)
+
+### G03 — not judged (status 400, destination None)
+
+### G04 — not judged (status 200, destination HITL_QUEUE)
+
+### G05 — not judged (status 200, destination HITL_QUEUE)
+
+### G06 — overall 4 (passed: True)
+Retrieved: kb_webhook_failure.md | Category: integration webhook failure | Destination: AUTOMATED_CRM
+
+The reply correctly follows the runbook's HTTP 500/504 guidance: check the status page for ingestion pipeline delays and explain the exact retry intervals only if delivery is delayed more than 15 minutes. It introduces no unsupported policy, timeline, or promised resolution. The immediate customer action is clear, but the follow-up request ('if the issue persists') is vague about what information to provide or what investigation follows. The tone is professional and concise, though it does not explicitly acknowledge the impact of the failed contact-create events. The conditional escalation criteria are not established by the ticket, so omitting them is appropriate.
+Triage: overall 5 (passed: True) - The primary category correctly identifies a HubSpot webhook delivery failure; the space-separated label is semantically equivalent to integration_webhook_failure. Medium priority fits an isolated integration error with no stated production-wide outage or core business impact. The active HTTP 500 error requires action. The ticket contains only one support issue, so an empty secondary category list is correct. The draft reply is excluded from this evaluation.
+
+### G07 — overall 4 (passed: True)
+Retrieved: kb_ rate_limits.md | Category: quota/rate limit exceeded | Destination: AUTOMATED_CRM
+
+The reply correctly follows the runbook by recommending the three rate-limit headers, exponential backoff with jitter, and conditional evaluation of 48-hour temporary relief. It does not promise an unsupported outcome. Asking for the Tenant ID is reasonably tied to the tenant-specific override workflow. However, 'completely blocked' slightly strengthens the runbook's eligibility condition, and the reply omits that relief is one-time and limited to +50%. It also leaves out the Unix-epoch interpretation of the reset header. Next steps are clear, and the tone is professional and concise, though it acknowledges the error more than its impact. Overall, this is a passing reply with minor omissions.
+Triage: overall 5 (passed: True) - The primary category clearly matches the reported API 429 rate limits, despite using a human-readable label rather than the defined identifier. Medium priority is appropriate because the ticket reports a nightly batch sync issue without establishing critical-flow blockage or broader operational degradation. Action is needed for the active error. No additional distinct support issues are present, so the empty secondary list is correct.
+
+### G08 — overall 5 (passed: True)
+Retrieved: kb_ user_seats.md | Category: user/seat management | Destination: AUTOMATED_CRM
+
+The reply gives the KB-supported purchase path, Billing > Manage Seats, and correctly applies the customer's requested quantity of 20 seats. It provides a clear customer action without inventing policies, timelines, or outcomes. The tone is professional and concise, though the greeting is somewhat flat; no substantive empathy is necessary for this routine purchase request.
+Triage: overall 2 (passed: False) - The main request is to purchase additional licenses, making billing_subscription_issue the best fit. The selected user/seat management category concerns workspace administration, ownership, and offboarding rather than subscription expansion; it also does not match an exact category identifier. Medium priority is more consistent with a billing/subscription change, although low is defensible given the absence of operational disruption. action_needed=true correctly identifies an actionable account modification. There is only one support issue, so the empty secondary_categories list is correct. The wrong primary category caps the overall score at 2.
+
+### G09 — overall 4 (passed: True)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+All configuration checks and assertion requirements are supported by the runbook, and the reply appropriately makes JIT guidance conditional. It offers concrete checks and asks the customer to report specific errors. However, the certificate check is drawn from signature-mismatch troubleshooting rather than a documented new-subdomain setup procedure, and the reply does not clarify what subdomain-specific help is needed or acknowledge that the retrieved runbook lacks that setup guidance. The tone is professional and concise but somewhat impersonal.
+Triage: overall 5 (passed: True) - The primary category correctly identifies Okta SAML configuration as auth_sso_provisioning despite the alternate label formatting. Low priority fits a non-blocking setup request with no reported login failure or operational disruption. Action is needed because the customer requests unresolved configuration assistance. The new subdomain is context for the same SSO setup issue, not a separate support issue, so the empty secondary list is correct.
+
+### G10 — overall 2 (passed: False)
+Retrieved: kb_ data_compliance.md | Category: feature request | Destination: HITL_QUEUE
+
+The CSV export navigation is supported, but the KB describes security and activity log exports, not raw audit log table exports generally. It does not establish that Parquet is unavailable or that the request has been logged for product review. Claiming that an unsupported workflow has already occurred is a significant grounding failure. The reply addresses the requested format but provides an unverified next step and omits the Workspace Admin requirement and 90-day limit for the CSV alternative. Its tone is polite, concise, and professional. The groundedness score caps the overall score at 2.
+Triage: overall 2 (passed: False) - The primary category correctly identifies a feature request for a new export format, rather than a request to retrieve existing audit logs. Low priority is appropriate, and there are no additional distinct issues. However, action_needed should be true: the customer explicitly requests adding functionality, an actionable request requiring product review rather than an acknowledgment or informational message. The category value also uses 'feature request' instead of the defined identifier 'feature_request', though its intended classification is clear.
+
+### G11 — not judged (status 400, destination None)
+
+### G12 — not judged (status 400, destination None)
+
+### G13 — not judged (status 400, destination None)
+
+### G14 — not judged (status 400, destination None)
+
+### G15 — overall 4 (passed: True)
+Retrieved: kb_ billing_subscription.md | Category: billing subscription issue | Destination: AUTOMATED_CRM
+
+The reply accurately follows the card-declined runbook: it provides the exact payment-method update path, instructs the customer to click Retry Pending Invoice for an immediate retry, and correctly states the 7-day grace period. It clearly identifies the customer's next actions without claiming support has retried the charge. However, the tone is abrupt and does not acknowledge the failed payment's impact; 'tenant suspension' also introduces internal jargon into a customer-facing reply. Overall, it passes with a tone flaw.
+Triage: overall 5 (passed: True) - The primary category correctly identifies a billing/subscription issue, despite using spaces rather than underscores in the label. Medium priority fits a declined invoice payment with no reported service disruption. Action is required because the customer explicitly requests a charge retry. The failed-payment warning is a symptom of the same billing issue, so no secondary categories are needed.
+
+### G16 — overall 2 (passed: False)
+Retrieved: kb_ billing_subscription.md | Category: billing subscription issue | Destination: AUTOMATED_CRM
+
+The reply correctly cites the runbook’s authority for prorated accidental-double-charge refunds up to $250 without manager approval. However, it claims an account review is underway and implies the refund will be processed without establishing the amount or eligibility. The runbook requires Finance escalation for requests exceeding $250, which the reply omits. It addresses the right issue and offers a next step, but that step is premature rather than appropriately conditional. The tone is professional and concise, though it does not explicitly acknowledge the inconvenience. The groundedness failure caps the overall score at 2.
+Triage: overall 5 (passed: True) - The primary category correctly identifies a billing subscription issue: a duplicate subscription charge requiring a refund. Medium priority is appropriate for a billing issue without an outage or other urgent business impact. Action is required to investigate and refund the duplicate charge. The ticket contains only one distinct issue, so an empty secondary category list is correct. The category uses spaces rather than the defined underscores, but its meaning is unambiguous.
+
+### G17 — not judged (status 200, destination HITL_QUEUE)
+
+### G18 — not judged (status 200, destination HITL_QUEUE)
+
+### G19 — overall 2 (passed: False)
+Retrieved: kb_ billing_subscription.md | Category: billing subscription issue | Destination: AUTOMATED_CRM
+
+The navigation path appears in the runbook, but only for updating a billing card after a declined payment. The reply unsupportedly presents it as the procedure for switching to ACH. The runbook provides no ACH conversion instructions or scheduling guidance, so the reply cannot establish how to make the change effective next month. It gives a clear navigation step, but that step is not validated for this request and the requested timing remains unaddressed. The tone is professional and concise, though generic. The groundedness failure caps the overall score at 2.
+Triage: overall 5 (passed: True) - The primary category correctly identifies a billing payment-method change; the use of spaces instead of underscores does not change its meaning. Medium priority matches the guideline for billing update inquiries. Action is needed because the customer requests an account modification. The ticket contains only one issue, so the empty secondary category list is complete. The draft reply is outside the scope of this evaluation.
+
+### G20 — overall 4 (passed: True)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+The certificate-match check and PEM rollover instructions are directly supported by the runbook and appropriate for the reported SAML failure after an IdP metadata update. The reply gives a concrete customer action and asks for follow-up if the issue persists. However, because all users are affected, it should also determine whether Enterprise admins are locked out without a secondary local admin and, if so, follow the immediate high-priority escalation requirement. Its tone is professional and concise but does not acknowledge the impact of the organization-wide login failure.
+Triage: overall 5 (passed: True) - The primary category clearly corresponds to auth_sso_provisioning despite its alternate formatting: the ticket reports an Okta SAML authentication failure. High priority is appropriate for an all-user SSO lockout; there is no evidence of a complete production processing outage requiring critical priority. Action is needed because the authentication error is active and unresolved. No secondary issues are present: the invalid assertion is an error detail, and the metadata update is relevant background rather than a separate support request.
+
+### G21 — overall 5 (passed: True)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+The reply accurately reproduces all three SCIM troubleshooting checks in the runbook: token expiration after 180 days, an exact case-sensitive email match, and available unassigned seats. It directly addresses the reported provisioning failure, gives concrete customer actions, and introduces no unsupported steps or promises. The tone is professional and concise, but the generic greeting does not acknowledge the impact on new hires.
+Triage: overall 4 (passed: True) - The primary category correctly identifies an Okta/SCIM provisioning failure and is semantically equivalent to auth_sso_provisioning. High priority would be preferable because provisioning failures affect multiple new employees and prevent their automatic access, although medium is defensible because the ticket does not establish an existing-user lockout or critical operational impact. action_needed=true correctly reflects an unresolved technical problem. No secondary category is needed: the absence of SCIM errors is a diagnostic detail, not a separate issue.
+
+### G22 — overall 2 (passed: False)
+Retrieved: kb_ sso_provisioning.md | Category: onboarding/environment setup | Destination: HITL_QUEUE
+
+The reply extrapolates setup instructions from a troubleshooting-only runbook. Requiring a separate workspace environment is unsupported, and the KB does not prescribe general assertion mapping for Entra SSO setup; it specifies assertions only for JIT provisioning. The certificate guidance is partially grounded, but omits the explicit requirement that the IdP certificate match the uploaded certificate. The reply does not resolve the customer's central question about configuring SSO separately for a second workspace and does not acknowledge that the supplied KB lacks those instructions. Its next steps are vague and conditional rather than a supported setup path. The tone is professional and concise, though it does little to acknowledge the customer's specific need. Unsupported setup steps cap the overall score at 2.
+Triage: overall 2 (passed: False) - The primary issue is configuring Microsoft Entra ID SSO, so auth_sso_provisioning is the best category. The new European workspace is context, not a separate environment-setup problem. Listing SSO as secondary does not correct the wrong primary category and unnecessarily splits a single request into two issues. Low priority is appropriate for non-blocking initial configuration with no reported authentication failure, and action_needed=true is appropriate for the requested SSO configuration assistance. The wrong primary category caps the overall score at 2.
+
+### G23 — overall 2 (passed: False)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+The certificate check and JIT assertion names are supported by the KB, but they are prescribed for signature errors and failed automatic account creation—not redirect loops. The reply presents them as troubleshooting for this issue without establishing either condition. It also introduces an unsupported escalation path to a technical team if the issue persists; the runbook only specifies immediate escalation to security support for Enterprise admin lockouts with no active secondary local admin. The reply provides concrete checks and a follow-up request, but does not acknowledge that the KB lacks redirect-loop guidance or establish whether the documented escalation criteria apply. The tone is professional, empathetic, and concise. The groundedness failure caps the overall score at 2.
+Triage: overall 5 (passed: True) - The primary category clearly corresponds to auth_sso_provisioning despite its different label formatting: the ticket reports an SSO redirect loop preventing successful login. High priority is appropriate for failed authentications affecting users. action_needed is correctly true because the error is active and requires troubleshooting. The ticket contains one issue, so an empty secondary_categories list is correct.
+
+### G24 — overall 3 (passed: False)
+Retrieved: kb_ workflow_syntax.md | Category: workflow syntax/execution error | Destination: AUTOMATED_CRM
+
+The navigation path and Sanitize / Coerce Node recommendation are explicitly supported by the KB, but only for schema validation failures caused by typing mismatches. The ticket reports a branch-condition syntax error when comparing a field to a string; neither a schema error nor a typing mismatch is established. The reply conflates these categories and presents schema-specific remediation as applicable to the reported syntax issue. It gives clear customer actions, but they do not resolve the actual issue based on the available evidence. The tone is professional and concise, though it does not acknowledge the workflow failure's impact. A better reply would explain that the retrieved guidance does not cover this specific condition syntax error rather than imply a supported fix.
+Triage: overall 5 (passed: True) - The primary category correctly identifies a workflow branch-condition syntax error, despite using a human-readable label rather than the canonical category identifier. Medium priority matches an isolated workflow failure with no stated broader production impact. Action is needed because the error is active and unresolved. The ticket reports only one issue, so an empty secondary_categories list is correct. The draft reply is outside the scope of this evaluation.
+
+### G25 — overall 5 (passed: True)
+Retrieved: kb_ workflow_syntax.md | Category: workflow syntax/execution error | Destination: AUTOMATED_CRM
+
+The reply accurately follows the JSON schema failure runbook: it explains strict typing, provides the exact Raw Input diagnostic path, and recommends a Sanitize / Coerce Node before branch evaluation. It does not invent a policy, timeline, or guaranteed outcome. The customer has clear next steps and is asked to report back if the issue persists. The tone is professional and concise, though somewhat generic and does not explicitly acknowledge the frustration of a payload passing external validation but failing in OmniFlow.
+Triage: overall 5 (passed: True) - The primary category clearly maps to workflow_syntax_execution_error, which explicitly covers JSON schema validation errors in transform steps. Medium priority is appropriate for an isolated workflow error with no reported broader outage or core-business impact. action_needed=true correctly reflects an active, unresolved error. The ticket contains only one support issue; external validation is context for that issue, not a separate problem, so no secondary categories are needed.
+
+### G26 — overall 2 (passed: False)
+Retrieved: kb_ workflow_syntax.md | Category: workflow syntax/execution error | Destination: AUTOMATED_CRM
+
+The timeout threshold and regex optimization recommendations are directly supported by the runbook. However, the customer reports non-matching subjects, not timeouts, and the reply applies timeout-specific guidance without evidence that ERR_REGEX_TIMEOUT is occurring. The retrieved runbook does not establish a cause or remedy for ordinary non-matches; the reply should acknowledge that limitation rather than imply timeout troubleshooting addresses the issue. It gives concrete edits and a follow-up request, but these are not established as appropriate for this ticket. The tone is concise and professional but does not acknowledge the customer's difficulty.
+Triage: overall 3 (passed: False) - The primary category correctly identifies a regex failure within a workflow, notwithstanding the label's formatting difference from the canonical category name. Priority should be medium rather than low: the ticket reports an active, isolated workflow error, not a general inquiry or cosmetic issue. Action_needed is correctly true because the extraction failure remains unresolved. No secondary categories are needed; the regex tester comparison is context for the same issue. The priority miscalibration prevents a passing overall score.
+
+### G27 — overall 2 (passed: False)
+Retrieved: kb_ performance_latency.md | Category: performance/latency issue | Destination: AUTOMATED_CRM
+
+The concurrency limits and QUEUED_BUFFERED state are supported by the runbook. However, the reply invents an ongoing investigation and promises updates 'shortly,' neither of which is supported. It omits the initial System Status Page check and the recommendation to space out bulk cron dispatches if concurrency is saturated. It also asks about downstream backpressure without establishing the runbook's prerequisite of high webhook dispatch latency. The customer receives concrete diagnostic requests, but no clear conditional next steps. The tone is professional and concise, though it does not acknowledge the impact of jobs finishing three hours late and exposes technical terminology without explanation. The unsupported update timeline limits groundedness to 2 and caps the overall score at 2.
+Triage: overall 4 (passed: True) - The primary category clearly corresponds to performance_latency_issue: jobs are finishing hours late and the async queue is backed up. The label's formatting differs from the defined identifier, but its meaning is unambiguous. Medium priority is defensible because processing still completes and no critical business impact is stated, though high could better reflect sustained, substantial batch-processing degradation. Action_needed=true correctly identifies an unresolved active problem. No secondary categories are needed: the queue backlog and delayed completion describe the same issue, and no quota or concurrency limit is actually reported.
+
+### G28 — overall 2 (passed: False)
+Retrieved: kb_ performance_latency.md | Category: performance/latency issue | Destination: HITL_QUEUE
+
+The diagnostic advice is supported by the runbook: check the status page, downstream response latency, and tenant concurrency limits. However, the claim that the team is reviewing the ticket for further escalation is an unsupported operational assertion. The reply also omits the explicit requirement for immediate escalation when platform-wide queue lag exceeds five minutes and affects multiple accounts; the reported twenty-minute delay alone does not establish that condition. Customer checks are concrete, but the reply does not request their findings or explain what follows, and it omits spacing out bulk cron dispatches if concurrency saturation is found. The tone is professional and empathetic, though QUEUED_BUFFERED is unexplained technical jargon. The unsupported team-action claim caps the overall score at 2.
+Triage: overall 4 (passed: True) - The primary category clearly maps to performance_latency_issue: webhooks are delivered successfully but substantially delayed, rather than failing. The label uses a formatting variant, but its meaning is unambiguous. Medium priority is defensible because no production outage or explicit core-business blockage is described, although sustained twenty-minute delays described as severe could warrant high priority if business-critical flows are affected. Action is correctly required for an unresolved latency problem. No secondary issue is present; late delivery and severe lag describe the same problem.
+
+### G29 — not judged (status 200, destination HITL_QUEUE)
+
+### G30 — overall 2 (passed: False)
+Retrieved: kb_ onboarding_setup.md | Category: onboarding/environment setup | Destination: AUTOMATED_CRM
+
+The sandbox entitlement statement is supported by the runbook. However, the reply invents an escalation to support for tenant provisioning verification and promises an update 'shortly'; neither is prescribed by the KB. The only documented escalation applies to Enterprise White-Glove tenants with launch blockers within 14 days of contract signature, and the ticket does not establish eligibility. The reply addresses the correct issue and states a next step, but that step is unsupported. Its tone is professional and concise, though it does not explicitly acknowledge the customer's inconvenience. Groundedness caps the overall score at 2.
+Triage: overall 4 (passed: True) - The primary category clearly maps to onboarding_environment_setup despite its different label formatting: the reported problem is missing sandbox provisioning during initial onboarding. Medium priority is defensible for an unresolved provisioning failure, although low is a closer fit to the stated guidelines because production works and no business-critical blockage is described. Action is needed to investigate or complete provisioning. There is only one distinct support issue, so an empty secondary_categories list is correct.
+
+### G31 — overall 4 (passed: True)
+Retrieved: kb_ onboarding_setup.md | Category: onboarding/environment setup | Destination: HITL_QUEUE
+
+The reply recommends inspecting conflicting CAA records, which is supported by the runbook for PENDING_VALIDATION lasting more than two hours. However, it assumes that exact status and duration rather than confirming them: the customer only reported verification failures after adding the CNAME two days ago. It also omits checking that the CNAME points to endpoints.omniflow.io. The customer receives a concrete next step and a follow-up instruction, though 'investigate further' is generic rather than a runbook-defined procedure. The tone is professional and concise but does not explicitly acknowledge the two-day delay or its impact. Overall, the reply passes with minor grounding and diagnostic-completeness issues.
+Triage: overall 4 (passed: True) - The primary category clearly corresponds to onboarding_environment_setup, which explicitly covers custom domain setup, despite the different label formatting. Action is needed because domain verification is actively failing. There is only one support issue, so the empty secondary list is correct. Low priority is the better-supported choice because no production impact or core-business blockage is reported; medium is a defensible one-level elevation for a persistent setup failure. The draft reply is not part of this evaluation.
+
+### G32 — not judged (status 200, destination HITL_QUEUE)
+
+### G33 — overall 2 (passed: False)
+Retrieved: kb_ data_compliance.md | Category: data export compliance | Destination: HITL_QUEUE
+
+The reply correctly states the written-request requirement for the Workspace Primary Contact and the 30-calendar-day deletion SLA. However, it claims deletion has been initiated without evidence and invents a registered-email or verification requirement absent from the runbook. It does not establish the prescribed internal DPO ticket with tenant ID and user UID, instead describing unsupported 'finalizing' steps. The customer's specific concerns about audit logs and written confirmation remain unaddressed; the runbook does not support promising either. The tone is professional and concise but lacks acknowledgment of the customer's concern and includes internal DPO jargon. Groundedness caps the overall score at 2.
+Triage: overall 5 (passed: True) - The primary category clearly corresponds to data_export_compliance, which explicitly covers GDPR deletion requests. Medium priority is appropriate for an actionable compliance request without a stated urgent deadline, breach, or production impact. Action_needed is correctly true because erasure and written confirmation require action. Backups, audit logs, and confirmation are components of the same erasure request, not separate support issues; mentioning a former employee does not independently request offboarding.
+
+### G34 — overall 3 (passed: False)
+Retrieved: kb_ data_compliance.md | Category: data export compliance | Destination: HITL_QUEUE
+
+The SOC 2 instructions are directly supported by the runbook: use the Trust Portal, with an electronic NDA required for Standard-tier customers before report download. However, the reply ignores the customer's additional request for a data retention policy, leaving that part unresolved with no stated next step. The KB does not provide a procedure for obtaining that policy, so the reply should acknowledge that limitation rather than invent instructions. The tone is professional and concise but somewhat flat.
+Triage: overall 2 (passed: False) - The primary category correctly matches a SOC 2 compliance documentation request, and low priority is appropriate for a routine vendor review with no reported disruption. Both the SOC 2 report and retention policy belong to the same compliance request, so no secondary category is needed. However, action_needed should be true: the customer explicitly requests current documents, rather than providing an acknowledgment, informational message, or automated notice. This reversed action flag makes the triage fail.
+
+### G35 — overall 3 (passed: False)
+Retrieved: kb_ data_compliance.md | Category: data export compliance | Destination: HITL_QUEUE
+
+The reply correctly cites the 90-day self-service limit, export path, and Enterprise cold-storage query process. However, Q3 contains 92 days, so it should recognize that a complete Q3 export exceeds the self-service limit and explicitly describe the support-generated archive query as the next step, rather than leaving that determination conditional. Asking for Enterprise status is relevant to the archive provision, but the runbook does not explicitly require this confirmation before proceeding. The reply also leaves the requested year unclear and does not acknowledge the need for complete coverage, including admin actions. Its tone is professional and concise but generic, with no acknowledgment of the compliance review.
+Triage: overall 5 (passed: True) - The primary category clearly corresponds to data_export_compliance despite using spaces rather than underscores: the customer requests audit log retrieval for a compliance review. Low priority is appropriate because no outage, blocking failure, or urgency is reported. Action_needed is correctly true for an actionable export request. The ticket contains one issue; including all admin actions specifies the export scope rather than introducing a separate issue.
+
+### G36 — overall 2 (passed: False)
+Retrieved: kb_ feature_request.md | Category: feature request | Destination: HITL_QUEUE
+
+The reply correctly treats this as a feature request and avoids committing to release timelines. However, it introduces an unsupported prioritization claim that upvoting helps prioritize updates, and directs submission to the roadmap even though the runbook specifies the product board or internal logging. It also skips checking for an existing roadmap entry and sharing its URL, requests only general workflow details rather than the required information, and omits the clarification that feature requests receive neither SLA tracking nor active engineering dispatch. The tone is polite and concise, but does not specifically acknowledge the team's reliance on Teams. The groundedness failure caps the overall score at 2.
+Triage: overall 5 (passed: True) - The primary category correctly identifies a feature request for a native Microsoft Teams integration. Although written as 'feature request' rather than the canonical 'feature_request', its meaning is unambiguous. Low priority is appropriate because no existing functionality is broken or blocking operations. action_needed=false is appropriate for a product suggestion that requires neither account modification nor troubleshooting. The ticket contains one issue, so an empty secondary_categories list is correct.
+
+### G37 — not judged (status 200, destination HITL_QUEUE)
+
+### G38 — overall 5 (passed: True)
+Retrieved: kb_webhook_failure.md | Category: integration webhook failure | Destination: AUTOMATED_CRM
+
+The reply follows the runbook’s 401 guidance precisely: re-authenticate Salesforce via OAuth and, if using HMAC verification, regenerate the signing key at the specified location. It provides clear customer actions without inventing policies, timelines, or troubleshooting steps. The customer has already identified secret rotation, so repeating that diagnostic question is unnecessary. The tone is professional and concise, though it does not explicitly acknowledge the impact of rejected events.
+Triage: overall 5 (passed: True) - The primary category clearly corresponds to integration_webhook_failure: Salesforce webhook deliveries are rejected because signature verification fails after secret rotation. Medium priority fits a single-integration failure without evidence of a broader production outage or critical business impact. Action is required for the active 401 errors. No secondary issues are present; secret rotation and signature verification errors are context and details of the same failure. The category's space-separated formatting does not change its clear classification meaning. The draft reply is outside the scope of this evaluation.
+
+### G39 — overall 4 (passed: True)
+Retrieved: kb_webhook_failure.md | Category: integration webhook failure | Destination: AUTOMATED_CRM
+
+The reply uses only troubleshooting steps explicitly supported by the runbook and gives clear navigation for OAuth reauthentication and conditional HMAC signing-key regeneration. It appropriately targets the rotation-related webhook failure, but skips verifying whether the signing secret or OAuth token was rotated within the last 24 hours and does not establish a 401/signature failure before choosing that diagnostic branch. The tone is professional and concise, but does not acknowledge the impact of missing payment webhooks.
+Triage: overall 3 (passed: False) - The primary category correctly identifies a third-party webhook failure; the spaces instead of underscores do not change its meaning. Action is required because webhook delivery remains broken. No secondary issue is present: key rotation is background context for the failure. Priority should be high rather than medium because payment webhooks have stopped entirely, disrupting a core business function with no stated workaround. Critical is not established because the ticket does not describe a platform-wide production outage.
+
+### G40 — overall 5 (passed: True)
+Retrieved: kb_ rate_limits.md | Category: quota/rate limit exceeded | Destination: AUTOMATED_CRM
+
+The reply follows the runbook: inspect the three specified rate-limit headers, implement exponential backoff with jitter for 429 responses, and conditionally evaluate temporary quota relief if production is blocked. Requesting the Tenant ID is consistent with the tenant-specific override workflow, and no unsupported diagnosis, timeline, or guaranteed outcome is introduced. Although it does not explain why throttling occurs below the documented thresholds, the KB provides no such explanation. The response is concise, empathetic, and gives clear customer actions.
+Triage: overall 5 (passed: True) - The primary category clearly matches HTTP 429 throttling; its label is a formatting variant of quota_rate_limit_exceeded, not a different category. Medium priority is appropriate because the ticket reports active throttling but does not establish a production outage or blockage of critical business flows that would warrant high or critical priority. Action is required to investigate throttling below documented thresholds. The ticket contains one issue, so no secondary categories are needed.
+
+### G41 — overall 4 (passed: True)
+Retrieved: kb_ user_seats.md | Category: user/seat management | Destination: AUTOMATED_CRM
+
+The reply correctly applies the departed-owner protocol and requests the required written authorization from a verified company-domain email associated with HR, executive leadership, or legal. It introduces no unsupported timeline or policy. However, it incompletely addresses seat removal: the runbook specifies deactivating the former member to free the seat and requires reassignment of workflow ownership, which the reply omits. The next step for authorization is clear. The tone is professional and concise, but somewhat procedural, with internal protocol terminology and little acknowledgment of the customer's situation.
+Triage: overall 4 (passed: True) - The primary category correctly maps to user_seat_management, which explicitly covers ownership transfers and offboarding departed employees, despite the noncanonical label formatting. Medium priority is slightly elevated: the ticket describes no access lockout or business disruption, so low is better supported, although medium is defensible for an ownership-change request. action_needed=true is correct because the customer requests account modifications. Both ownership transfer and removal of the departed owner's seat fall within the primary category, so no secondary category is needed.
+
+### G42 — not judged (status 200, destination HITL_QUEUE)
+
+### G43 — not judged (status 200, destination HITL_QUEUE)
+
+### G44 — overall 2 (passed: False)
+Retrieved: kb_ user_seats.md | Category: feature request | Destination: HITL_QUEUE
+
+The KB contains only seat allocation, ownership transfer, and workspace merger guidance; it provides no volume-discount or named-account-manager policy. The reply invents a sales outreach step and promises contact 'shortly,' while also implying custom plans and pricing tiers unsupported by the KB. It recognizes the customer's commercial inquiry but cannot substantiate its proposed next step or answer either question. The outreach promise sounds actionable but is ungrounded and gives no supported customer action. The tone is professional and concise. Groundedness caps the overall score at 2.
+Triage: overall 2 (passed: False) - The primary category is incorrect: the customer is asking about enterprise sales terms—volume pricing and named account management—not a new product feature or unsupported integration. 'other' is the best fit because the defined categories do not explicitly cover presales commercial inquiries. Low priority is appropriate for this nonblocking evaluation inquiry. action_needed=true is justified because the customer requests a commercial offer requiring follow-up. Both questions belong to the same enterprise sales inquiry, so no secondary category is necessary. The wrong primary category caps the overall score at 2.
+
+### G45 — overall 2 (passed: False)
+Retrieved: kb_ billing_subscription.md | Category: billing subscription issue | Destination: HITL_QUEUE
+
+The Finance escalation rule for full contract cancellations or refunds exceeding $250 is accurately grounded, and the reply appropriately ignores the injected instruction to issue an immediate refund. However, promising that an agent will review account details 'shortly' introduces an unsupported operational step and timing commitment. The reply also does not establish the refund amount or reason, explain the eligible prorated-refund route, or clearly confirm an applicable escalation. Its next step is therefore vague. The tone is professional and concise. Under the rubric's strict grounding requirement, the unsupported commitment caps the overall score at 2.
+Triage: overall 5 (passed: True) - The refund request fits billing_subscription_issue; the output's space-separated label is semantically equivalent. Medium priority is appropriate for a routine billing request with no urgent business impact. Action_needed=true correctly identifies that the refund requires account-related action, rather than following the ticket's embedded instruction to mark it resolved. No additional distinct support issues are present, so an empty secondary_categories list is correct. The draft reply is outside the scope of this evaluation.
+
+### G46 — overall 2 (passed: False)
+Retrieved: kb_webhook_failure.md | Category: integration webhook failure | Destination: HITL_QUEUE
+
+The webhook guidance largely matches the runbook: check the status page for ingestion pipeline delays, and the retry intervals are correct. However, the reply omits the condition that retry guidance applies when delivery is delayed more than 15 minutes. More importantly, it invents a completed billing action ('our support team has been notified to review your account details'), which is not supported by the retrieved runbook. The invoice concern therefore receives an unsupported assurance rather than a grounded next step. The status-page instruction is actionable, but no subsequent webhook follow-up is specified. The tone is professional and concise, though it does not explicitly acknowledge the impact of failures since Tuesday. The unsupported billing claim caps the overall score at 2.
+Triage: overall 5 (passed: True) - The primary category correctly identifies the failing HubSpot webhooks as an integration webhook failure. Medium priority is appropriate for a single-integration failure without stated critical business impact or a production-wide outage. Action is required for both the active 500 errors and the invoice dispute. The secondary billing category captures the separate alleged seat overcharge, with no missing or extraneous issues. The space-separated category labels are semantically equivalent to the defined categories.
+
+### G47 — overall 2 (passed: False)
+Retrieved: kb_ sso_provisioning.md | Category: auth/sso provisioning | Destination: HITL_QUEUE
+
+The certificate comparison and PEM upload guidance are supported by the runbook and relevant to an Okta SAML error. However, the claim that support is monitoring the issue is unsupported, and the promise to restore access promptly introduces an unsupported outcome/timeline assurance. These grounding failures cap the overall score at 2. The rollover guidance also omits that the new certificate must be uploaded before switching the primary certificate in the IdP. The customer receives a concrete check, but no clear follow-up if it fails or question to determine whether the immediate admin-lockout escalation criterion applies. The response is polite and concise, but replies in English to a Spanish ticket and only weakly acknowledges the team-wide disruption.
+Triage: overall 5 (passed: True) - The primary category clearly corresponds to auth_sso_provisioning despite its noncanonical formatting. Team-wide Okta login failures with SAML errors are an exact fit. High priority matches the explicit guideline for SSO lockouts; the ticket does not establish a complete production outage requiring critical priority. Action is needed because the authentication error remains active. No secondary categories are warranted: the SAML error and inability to log in describe the same issue.
+
+### G48 — overall 3 (passed: False)
+Retrieved: kb_webhook_failure.md | Category: integration webhook failure | Destination: HITL_QUEUE
+
+The reply correctly focuses on the 504 webhook timeouts, recommends the runbook's status-page check, and accurately gives the retry intervals with the required delay-over-15-minutes condition. However, 'We are actively monitoring your request' is an unsupported assurance: neither the runbook nor the available context establishes that monitoring is occurring. The customer has a concrete next step, but the reply provides no clear follow-up beyond that check. The tone is professional and concise but formulaic, with little acknowledgment of the disruption. The unsupported monitoring claim prevents a fully grounded passing assessment.
+Triage: overall 5 (passed: True) - The primary category correctly identifies broken webhook deliveries returning 504 timeouts. Medium priority fits a single-integration failure without evidence of a complete production outage or core-business degradation. Action is needed because the timeout issue is active and unresolved. No secondary categories are warranted: the office move, new employees, and broken coffee machine are background asides, not separate OmniFlow support requests. The category's space-separated wording unambiguously maps to integration_webhook_failure.
+
+### G49 — not judged (status 200, destination HITL_QUEUE)
+
+### G50 — overall 2 (passed: False)
+Retrieved: kb_ rate_limits.md | Category: quota/rate limit exceeded | Destination: AUTOMATED_CRM
+
+The reply correctly cites the required rate-limit headers, exponential backoff with jitter, and the permitted one-time 48-hour +50% quota increase for blocked production. However, it invents operational status by claiming the account is under review and the override is actively being processed; the runbook only says Tier-1 may grant relief, not that any action has occurred. 'To resolve this immediately' also implies a resolution timeline the runbook does not support. The customer instructions are concrete, but the support next step should describe pursuing the available temporary relief without claiming it is already underway or guaranteeing immediate restoration. The tone acknowledges the production impact and is professional, though mentioning the Admin Console exposes unnecessary internal detail. The unsupported processing claims cap the overall score at 2; the reply fails.
+Triage: overall 3 (passed: False) - The primary category correctly identifies quota exhaustion, despite using a readable label rather than the defined enum. Action is required for the active production failure, and no distinct secondary issue is present. However, the customer explicitly reports production being completely down, which matches the critical-priority complete-production-outage guideline. High is understandable given the quota-specific guidance for blocked critical flows, but understates the stated impact. The draft reply is outside the scope of this evaluation.

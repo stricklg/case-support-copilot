@@ -97,7 +97,7 @@ Score EACH dimension from 1 to 5, then give an overall score:
 Band guidance:
 Score 5 (Excellent): fully grounded, correct next steps from the
 runbook, clear ask of the customer if one is needed, tone is right.
-Score 3-4 (OK, but does not pass): core content is grounded and
+Score 3-4 (OK): core content is grounded and
 correct, but has a real flaw - a missing next step, a needed customer
 action left unstated, minor unsupported filler, or tone that is flat
 or overly verbose.
@@ -107,7 +107,51 @@ different problem than the ticket raised; or it promises an outcome
 the runbook does not support.
 
 PASS CRITERIA:
-The reply passes (passed=True) ONLY if the overall score is a 5.
+The reply passes (passed=True) if the overall score is 4 or 5.
 A groundedness score of 1 or 2 caps the overall score at 2,
 regardless of the other dimensions.
+"""
+
+
+RUBRIC_TRIAGE = """
+You are evaluating the triage decision produced by an AI support
+triage system. The system read one customer ticket and produced a
+structured triage: a primary category, a priority, an action_needed
+flag, and a list of any additional distinct issues in the ticket
+(secondary_categories). Judge the triage decision against the
+ticket and the category definitions - NOT against the reply text.
+
+Score EACH dimension from 1 to 5, then give an overall score:
+
+1. Category fit - the primary category is the best fit for the
+   ticket's main issue under the category definitions.
+2. Priority calibration - the priority matches the severity and
+   business impact described in the ticket, per the priority
+   guidelines in the category definitions.
+3. Action-needed correctness - action_needed is true when the
+   ticket reports an active error or requests an account change,
+   and false when the message is an acknowledgment, informational,
+   or an automated notice.
+4. Issue completeness - every distinct support issue in the ticket
+   is captured (primary category plus secondary_categories), and
+   nothing else is listed. Symptoms, consequences, error details,
+   and background events are not distinct issues.
+
+Band guidance:
+Score 5 (Excellent): primary category is the exact best fit,
+priority matches the ticket's impact, action_needed is correct,
+and the issue list is complete with no phantom issues.
+Score 3-4 (OK; a 4 passes, a 3 does not): the primary category is
+a defensible broader or adjacent bucket, OR the priority is off
+by one level in a defensible direction, OR a minor issue is
+missed or a borderline item is listed as a second issue.
+Score 1-2 (Unsatisfactory / Failed): the primary category is the
+wrong domain; a high-impact outage, lockout, or security issue
+is scored low priority; action_needed is backwards; or a genuine
+second issue is missed entirely.
+
+PASS CRITERIA:
+The triage passes (passed=True) if the overall score is 4 or 5.
+A wrong primary category caps the overall score at 2, regardless
+of the other dimensions.
 """

@@ -1,0 +1,24 @@
+{
+  "run_at": "2026-10-30T15:51:26.929354+00:00",
+  "mode": "live",
+  "generator_model": "gemini-3.5-flash-lite",
+  "fallback_model": "gemini-3.8-flash",
+  "judge_model": "gpt-6.1-sol",
+  "similarity_threshold": 0.65,
+  "confidence_threshold": 0.65,
+  "benchmark": {
+    "cases": 50,
+    "schema_compliance_pct": 100.0,
+    "routing_accuracy_pct": 84.0
+  },
+  "judged_cases": 33,
+  "judge_averages": {
+    "groundedness": 3.48,
+    "accuracy": 3.52,
+    "actionability": 3.58,
+    "tone": 3.85,
+    "overall": 2.91
+  },
+  "judge_pass_rate_at_5": 0.03,
+  "judge_pass_rate_at_4plus": 0.303
+}

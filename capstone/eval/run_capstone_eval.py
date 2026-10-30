@@ -38,8 +38,9 @@ from dotenv import load_dotenv  # noqa: E402
 load_dotenv(CAPSTONE_DIR / ".env")
 
 import config  # noqa: E402
-from judge import evaluate_capstone_reply  # noqa: E402
-from rubrics import RUBRIC_CAPSTONE  # noqa: E402
+from judge import (  # noqa: E402
+    evaluate_capstone_reply, evaluate_capstone_triage)
+from rubrics import RUBRIC_CAPSTONE, RUBRIC_TRIAGE  # noqa: E402
 
 
 def load_cases(cases_path):
@@ -81,11 +82,13 @@ def capture_live(cases):
             "retrieved_content": None,
             "similarity": None,
             "latency_ms": None,
+            "triage": None,
         }
         if status == 200:
             dest = res["execution"]["destination"]
             row["destination"] = getattr(dest, "value", str(dest))
             row["category"] = res["triage"]["category"]
+            row["triage"] = res["triage"]
             row["draft_reply"] = res["triage"]["draft_reply"]
             row["retrieved_doc"] = res["retrieval"]["matched_kb"]
             row["retrieved_content"] = (
@@ -100,6 +103,7 @@ def judge_rows(rows):
     """Judge every row that produced a real reply. Adds score keys."""
     for row in rows:
         row["judged"] = False
+        row["triage_judged"] = False
         if (row["status"] == 200 and row["draft_reply"]
                 and row["retrieved_content"]):
             result = evaluate_capstone_reply(
@@ -115,6 +119,19 @@ def judge_rows(rows):
                 "overall": result.overall,
                 "passed": result.passed,
                 "judge_explanation": result.explanation,
+            })
+        if row["judged"] and row.get("triage"):
+            t = evaluate_capstone_triage(
+                row["ticket_text"], row["triage"], RUBRIC_TRIAGE)
+            row.update({
+                "triage_judged": True,
+                "t_category_fit": t.category_fit,
+                "t_priority_calibration": t.priority_calibration,
+                "t_action_needed": t.action_needed,
+                "t_issue_completeness": t.issue_completeness,
+                "t_overall": t.overall,
+                "t_passed": t.passed,
+                "t_judge_explanation": t.explanation,
             })
     return rows
 
@@ -146,7 +163,7 @@ def summarise(rows, bench, mode):
     for d in dims:
         avgs[d] = (round(sum(r[d] for r in judged) / len(judged), 2)
                    if judged else None)
-    return {
+    summary = {
         "run_at": datetime.now(timezone.utc).isoformat(),
         "mode": mode,
         "generator_model": config.PRIMARY_MODEL,
@@ -164,6 +181,20 @@ def summarise(rows, bench, mode):
             round(sum(1 for r in judged if r["overall"] >= 4)
                   / len(judged), 3) if judged else None),
     }
+    tjudged = [r for r in rows if r.get("triage_judged")]
+    tdims = ["t_category_fit", "t_priority_calibration",
+             "t_action_needed", "t_issue_completeness", "t_overall"]
+    summary["triage_judged_cases"] = len(tjudged)
+    summary["triage_judge_averages"] = {
+        d: (round(sum(r[d] for r in tjudged) / len(tjudged), 2)
+            if tjudged else None) for d in tdims}
+    summary["triage_pass_rate_at_4plus"] = (
+        round(sum(1 for r in tjudged if r["t_overall"] >= 4)
+              / len(tjudged), 3) if tjudged else None)
+    summary["triage_pass_rate_at_5"] = (
+        round(sum(1 for r in tjudged if r["t_overall"] == 5)
+              / len(tjudged), 3) if tjudged else None)
+    return summary
 
 
 def write_outputs(rows, summary, out_dir):
@@ -173,7 +204,11 @@ def write_outputs(rows, summary, out_dir):
     fields = ["case_id", "status", "exp_status", "destination",
               "exp_dest", "category", "retrieved_doc", "similarity",
               "judged", "groundedness", "accuracy", "actionability",
-              "tone", "overall", "passed", "judge_explanation"]
+              "tone", "overall", "passed", "judge_explanation",
+              "triage_judged", "t_category_fit",
+              "t_priority_calibration", "t_action_needed",
+              "t_issue_completeness", "t_overall", "t_passed",
+              "t_judge_explanation"]
     with open(out_dir / "eval_report.csv", "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fields,
                                 extrasaction="ignore")
@@ -205,6 +240,14 @@ def write_outputs(rows, summary, out_dir):
                  f"{summary['judge_pass_rate_at_5']}")
     lines.append(f"- Pass rate (overall >= 4): "
                  f"{summary['judge_pass_rate_at_4plus']}")
+    lines += ["", "## Judge (triage decisions)",
+              f"- Cases judged: {summary['triage_judged_cases']}"]
+    for dim, avg in summary["triage_judge_averages"].items():
+        lines.append(f"- Avg {dim}: {avg}")
+    lines.append(f"- Pass rate (overall >= 4): "
+                 f"{summary['triage_pass_rate_at_4plus']}")
+    lines.append(f"- Pass rate (overall = 5): "
+                 f"{summary['triage_pass_rate_at_5']}")
     lines += ["", "## Per-case judge notes", ""]
     for r in rows:
         if r.get("judged"):
@@ -215,6 +258,10 @@ def write_outputs(rows, summary, out_dir):
                          f"Destination: {r['destination']}")
             lines.append("")
             lines.append(r["judge_explanation"])
+            if r.get("triage_judged"):
+                lines.append(f"Triage: overall {r['t_overall']} "
+                             f"(passed: {r['t_passed']}) - "
+                             f"{r['t_judge_explanation']}")
             lines.append("")
         else:
             lines.append(f"### {r['case_id']} — not judged "

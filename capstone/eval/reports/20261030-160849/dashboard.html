@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Capstone eval - 20261030-160849</title>
+<style>
+body { font-family: -apple-system, sans-serif; margin: 2rem;
+  color: #1c1c1e; }
+table { border-collapse: collapse; margin: 0.5rem 0 1.5rem; }
+td, th { border: 1px solid #d1d1d6; padding: 4px 10px;
+  text-align: left; font-size: 14px; }
+.headline { display: flex; gap: 1rem; flex-wrap: wrap; }
+.card { border: 1px solid #d1d1d6; border-radius: 10px;
+  padding: 0.8rem 1.2rem; min-width: 130px; }
+.card .n { font-size: 26px; font-weight: 700; }
+.card .l { font-size: 12px; color: #636366; }
+.barcell { width: 220px; }
+.bar { background: #0a84ff; height: 12px; border-radius: 3px; }
+</style></head><body>
+<h1>Capstone eval dashboard</h1>
+<p>Run 20261030-160849 | mode live |
+generator gemini-3.5-flash-lite | judge
+gpt-6.1-sol</p>
+<div class="headline">
+<div class="card"><div class="n">100.0%</div>
+<div class="l">schema compliance</div></div>
+<div class="card"><div class="n">86.0%</div>
+<div class="l">routing accuracy</div></div>
+<div class="card"><div class="n">3.06</div>
+<div class="l">reply judge overall</div></div>
+<div class="card"><div class="n">0.394</div>
+<div class="l">reply pass rate (&gt;= 4)</div></div>
+<div class="card"><div class="n">4.18</div>
+<div class="l">triage judge overall</div></div>
+<div class="card"><div class="n">0.758</div>
+<div class="l">triage pass rate (&gt;= 4)</div></div>
+</div>
+<p>Routing 84.0% -> 86.0%; reply judge 2.91 -> 3.06. Destination changes: G09: AUTOMATED_CRM -&gt; HITL_QUEUE</p>
+<h2>Routing misses (7)</h2>
+<table><tr><th>case</th><th>expected</th><th>got</th>
+<th>class</th><th>evidence</th></tr><tr><td>G17</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>retrieval-deflect</td><td>no runbook accepted (similarity 0.643)</td></tr><tr><td>G18</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>retrieval-deflect</td><td>no runbook accepted (similarity 0.586)</td></tr><tr><td>G28</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>margin gate</td><td>margin 0.023 &lt; 0.05</td></tr><tr><td>G29</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>retrieval-deflect</td><td>no runbook accepted (similarity 0.630)</td></tr><tr><td>G31</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>margin gate</td><td>margin 0.023 &lt; 0.05</td></tr><tr><td>G32</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>retrieval-deflect</td><td>no runbook accepted (similarity 0.644)</td></tr><tr><td>G48</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>margin gate</td><td>margin 0.035 &lt; 0.05</td></tr></table>
+<h2>Retrieval</h2>
+<p>Labelled cases: 43 | matched a runbook:
+33 | top-doc accuracy: 93.9% |
+intended automations deflected: 4 of
+23</p>
+<h2>Reply judge (n=33)</h2>
+<table><tr><td>groundedness</td><td class='barcell'><div class='bar' style='width:68%'></div></td><td>3.39</td></tr><tr><td>accuracy</td><td class='barcell'><div class='bar' style='width:70%'></div></td><td>3.48</td></tr><tr><td>actionability</td><td class='barcell'><div class='bar' style='width:71%'></div></td><td>3.55</td></tr><tr><td>tone</td><td class='barcell'><div class='bar' style='width:76%'></div></td><td>3.82</td></tr><tr><td>overall</td><td class='barcell'><div class='bar' style='width:61%'></div></td><td>3.06</td></tr></table>
+<p>Pass at 5: 0.152 |
+pass at &gt;= 4: 0.394</p>
+<h2>Triage judge (n=33)</h2>
+<table><tr><td>t_category_fit</td><td class='barcell'><div class='bar' style='width:95%'></div></td><td>4.73</td></tr><tr><td>t_priority_calibration</td><td class='barcell'><div class='bar' style='width:92%'></div></td><td>4.58</td></tr><tr><td>t_action_needed</td><td class='barcell'><div class='bar' style='width:95%'></div></td><td>4.76</td></tr><tr><td>t_issue_completeness</td><td class='barcell'><div class='bar' style='width:98%'></div></td><td>4.91</td></tr><tr><td>t_overall</td><td class='barcell'><div class='bar' style='width:84%'></div></td><td>4.18</td></tr></table>
+<p>Pass at 5: 0.576 |
+pass at &gt;= 4: 0.758</p>
+</body></html>

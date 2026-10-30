@@ -126,8 +126,8 @@
       "id": "G10",
       "exp_status": 200,
       "exp_dest": "HITL_QUEUE",
-      "exp_category": "data export compliance",
-      "notes": "Original golden case, verbatim from main.py.",
+      "exp_category": "feature request",
+      "notes": "Original golden case, verbatim from main.py. Label corrected 2026-10-30 (Geoff's ruling): the ticket asks for a new export format, which is a feature request on its face; the system and the triage judge both read it that way. Previously labelled data export compliance (the intent the ticket text does not carry). Destination unchanged - both categories are escalation categories, so routing is unaffected in every recorded run.",
       "payload": {
         "ticket_id": "G10",
         "customer_email": "data@co.com",
