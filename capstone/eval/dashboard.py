@@ -172,6 +172,37 @@ def build(folder, prev_folder=None):
         f"<tr><td>{esc(c)}</td><td>{esc(e)}</td><td>{esc(g)}"
         f"</td><td>{esc(k)}</td><td>{esc(w)}</td></tr>"
         for c, e, g, k, w in misses)
+    costs = summary.get("costs")
+    costs_html = ""
+    if costs:
+        if costs.get("run_total_usd") is not None:
+            pt = costs["per_ticket_usd"]
+            pt_rows = "".join(
+                f"<tr><td>{esc(name)}</td><td>{g['n']}</td>"
+                f"<td>${g['mean']}</td></tr>"
+                for name, g in pt.items())
+            costs_html = (
+                "<h2>Costs</h2>"
+                f"<p>Run total ${costs['run_total_usd']} | "
+                f"generator ${costs['generator']['usd']} | "
+                f"judge ${costs['judge']['usd']} | "
+                f"query embeddings "
+                f"${costs['query_embeddings']['usd']} | "
+                f"index build "
+                f"${costs['setup_index_build']['usd']} | "
+                f"Kestra daily x30: "
+                f"${costs['kestra_daily_projection_usd_30d']}</p>"
+                "<table><tr><th>outcome</th><th>n</th>"
+                "<th>mean $/ticket</th></tr>"
+                + pt_rows + "</table>"
+                f"<p>Prices as of {esc(costs['prices_as_of'])}; "
+                "token counts measured, not estimated.</p>")
+        else:
+            costs_html = (
+                "<h2>Costs</h2>"
+                f"<p>Judge (measured live): "
+                f"${costs['judge']['usd']}. "
+                f"{esc(costs.get('not_measured', ''))}</p>")
     page = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <title>Capstone eval - {esc(folder.name)}</title>
@@ -224,6 +255,7 @@ pass at &gt;= 4: {summary['judge_pass_rate_at_4plus']}</p>
 <table>{tri_dims}</table>
 <p>Pass at 5: {summary.get('triage_pass_rate_at_5')} |
 pass at &gt;= 4: {summary.get('triage_pass_rate_at_4plus')}</p>
+{costs_html}
 </body></html>
 """
     out = folder / "dashboard.html"

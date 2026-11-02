@@ -38,8 +38,13 @@ from dotenv import load_dotenv  # noqa: E402
 load_dotenv(CAPSTONE_DIR / ".env")
 
 import config  # noqa: E402
+import context_engine  # noqa: E402
 from judge import (  # noqa: E402
-    evaluate_capstone_reply, evaluate_capstone_triage)
+    evaluate_capstone_reply, evaluate_capstone_triage,
+    reset_judge_usage, take_judge_usage)
+
+# Index-build usage captured by capture_live (live mode only).
+_SETUP_USAGE = {'embed': None, 'gen': None}
 from rubrics import RUBRIC_CAPSTONE, RUBRIC_TRIAGE  # noqa: E402
 
 
@@ -61,13 +66,20 @@ def ticket_text(payload):
 def capture_live(cases):
     """Run each case through the pipeline; return JudgeCase dicts."""
     import main as capstone_main
+    import context_engine
     from context_engine import KB
 
+    capstone_main.reset_usage()
+    context_engine.reset_embed_usage()
     kb = KB(kb_dir=CAPSTONE_DIR / "kb")
     kb.build_index()
+    _SETUP_USAGE['embed'] = context_engine.take_embed_usage()
+    _SETUP_USAGE['gen'] = capstone_main.take_usage()
     captured = []
     for case in cases:
         payload = case["payload"]
+        capstone_main.reset_usage()
+        context_engine.reset_embed_usage()
         status, res = capstone_main.run_pipeline(payload, kb)
         row = {
             "case_id": case["id"],
@@ -95,6 +107,10 @@ def capture_live(cases):
                 res["retrieval"]["matched_content"])
             row["similarity"] = res["retrieval"]["similarity_score"]
             row["latency_ms"] = res.get("total_latency_ms")
+        row["usage"] = {
+            "gen": capstone_main.take_usage(),
+            "embed": context_engine.take_embed_usage(),
+        }
         captured.append(row)
     return captured
 
@@ -102,6 +118,7 @@ def capture_live(cases):
 def judge_rows(rows):
     """Judge every row that produced a real reply. Adds score keys."""
     for row in rows:
+        reset_judge_usage()
         row["judged"] = False
         row["triage_judged"] = False
         if (row["status"] == 200 and row["draft_reply"]
@@ -133,6 +150,7 @@ def judge_rows(rows):
                 "t_passed": t.passed,
                 "t_judge_explanation": t.explanation,
             })
+        row["judge_usage"] = take_judge_usage()
     return rows
 
 
@@ -153,6 +171,115 @@ def benchmark(rows):
         "schema_compliance_pct": round(100 * schema / total, 1),
         "routing_accuracy_pct": round(100 * routing / total, 1),
     }
+
+
+def _gen_usd(gen):
+    total = 0.0
+    for model, b in (gen.get("by_model") or {}).items():
+        price = config.PRICES.get(model)
+        if price is None:
+            continue
+        out = b["output_tokens"] + b["thoughts_tokens"]
+        total += (b["prompt_tokens"] * price["input"]
+                  + out * price["output"]) / 1_000_000
+    return total
+
+
+def _embed_usd(tokens):
+    price = config.PRICES[config.EMBEDDING_MODEL]
+    return tokens * price["input"] / 1_000_000
+
+
+def _judge_usd(ju):
+    price = config.PRICES[config.JUDGE_MODEL]
+    return (ju["input_tokens"] * price["input"]
+            + ju["output_tokens"] * price["output"]) / 1_000_000
+
+
+def _build_costs(rows, mode):
+    """Assemble the costs block for eval_summary.json.
+
+    Token counts are measured (Gemini usage_metadata, OpenAI
+    usage, count_tokens for embeddings); USD comes from
+    config.PRICES as of config.PRICES_AS_OF. Per-ticket
+    production cost counts generation + query embeddings
+    only - judging and index build are eval/setup spend and
+    stay in their own buckets. Replay mode never re-runs the
+    generator, so its fields are null, not zero.
+    """
+    costs = {
+        "prices_as_of": config.PRICES_AS_OF,
+        "currency": "USD",
+        "tokens_estimated": False,
+    }
+    ju_all = {"calls": 0, "input_tokens": 0, "output_tokens": 0}
+    for r in rows:
+        ju = r.get("judge_usage") or {}
+        for k in ju_all:
+            ju_all[k] += ju.get(k, 0)
+    judge_usd = _judge_usd(ju_all)
+    costs["judge"] = dict(ju_all, usd=round(judge_usd, 4))
+    if mode != "live":
+        costs["generator"] = None
+        costs["query_embeddings"] = None
+        costs["setup_index_build"] = None
+        costs["per_ticket_usd"] = None
+        costs["run_total_usd"] = None
+        costs["kestra_daily_projection_usd_30d"] = None
+        costs["not_measured"] = (
+            "replay mode: generator and embedding calls are "
+            "not re-run, so their costs are not measured; "
+            "judge costs above are measured live")
+        return costs
+    gen_all = {"calls": 0, "prompt_tokens": 0,
+               "output_tokens": 0, "thoughts_tokens": 0}
+    gen_usd = 0.0
+    emb_calls = 0
+    emb_tokens = 0
+    groups = {"automated": [], "deflected": [], "human_queue": []}
+    for r in rows:
+        usage = r.get("usage") or {}
+        gen = usage.get("gen") or {}
+        emb = usage.get("embed") or {}
+        for k in gen_all:
+            gen_all[k] += gen.get(k, 0)
+        row_gen_usd = _gen_usd(gen)
+        gen_usd += row_gen_usd
+        emb_calls += emb.get("calls", 0)
+        emb_tokens += emb.get("tokens", 0)
+        if r["status"] != 200:
+            continue
+        ticket_usd = row_gen_usd + _embed_usd(emb.get("tokens", 0))
+        dest = r.get("destination") or ""
+        if "." in dest:
+            dest = dest.rsplit(".", 1)[-1]
+        if dest == "AUTOMATED_CRM":
+            groups["automated"].append(ticket_usd)
+        elif gen.get("calls", 0) == 0:
+            groups["deflected"].append(ticket_usd)
+        else:
+            groups["human_queue"].append(ticket_usd)
+    setup_emb = _SETUP_USAGE.get("embed") or {}
+    setup_usd = _embed_usd(setup_emb.get("tokens", 0))
+    costs["generator"] = dict(gen_all, usd=round(gen_usd, 4))
+    costs["query_embeddings"] = {
+        "calls": emb_calls, "tokens": emb_tokens,
+        "usd": round(_embed_usd(emb_tokens), 4)}
+    costs["setup_index_build"] = {
+        "embedding_calls": setup_emb.get("calls", 0),
+        "tokens": setup_emb.get("tokens", 0),
+        "usd": round(setup_usd, 4)}
+    costs["per_ticket_usd"] = {
+        name: {"n": len(vals),
+               "mean": (round(sum(vals) / len(vals), 6)
+                        if vals else None)}
+        for name, vals in groups.items()}
+    run_total = (setup_usd + gen_usd + _embed_usd(emb_tokens)
+                 + judge_usd)
+    costs["run_total_usd"] = round(run_total, 4)
+    costs["kestra_daily_projection_usd_30d"] = round(
+        run_total * 30, 2)
+    return costs
 
 
 def summarise(rows, bench, mode):
@@ -194,6 +321,7 @@ def summarise(rows, bench, mode):
     summary["triage_pass_rate_at_5"] = (
         round(sum(1 for r in tjudged if r["t_overall"] == 5)
               / len(tjudged), 3) if tjudged else None)
+    summary["costs"] = _build_costs(rows, mode)
     return summary
 
 
@@ -248,6 +376,31 @@ def write_outputs(rows, summary, out_dir):
                  f"{summary['triage_pass_rate_at_4plus']}")
     lines.append(f"- Pass rate (overall = 5): "
                  f"{summary['triage_pass_rate_at_5']}")
+    costs = summary.get("costs")
+    if costs:
+        lines += ["", "## Costs",
+                  f"Prices as of {costs['prices_as_of']} "
+                  f"({costs['currency']}); token counts measured, "
+                  "not estimated."]
+        if costs.get("run_total_usd") is not None:
+            lines.append(f"- Run total: ${costs['run_total_usd']}")
+            lines.append(
+                f"- Generator: ${costs['generator']['usd']} | "
+                f"Judge: ${costs['judge']['usd']} | "
+                f"Embeddings (queries): "
+                f"${costs['query_embeddings']['usd']} | "
+                f"Index build: "
+                f"${costs['setup_index_build']['usd']}")
+            for name, g in costs["per_ticket_usd"].items():
+                lines.append(f"- Per ticket ({name}): "
+                             f"mean ${g['mean']} (n={g['n']})")
+            lines.append(
+                "- Kestra daily projection (30d): "
+                f"${costs['kestra_daily_projection_usd_30d']}")
+        else:
+            lines.append(f"- Judge (measured live): "
+                         f"${costs['judge']['usd']}")
+            lines.append(f"- {costs['not_measured']}")
     lines += ["", "## Per-case judge notes", ""]
     for r in rows:
         if r.get("judged"):

@@ -32,6 +32,25 @@ from config import JUDGE_MODEL  # noqa: E402
 
 OPENAI_URL = "https://api.openai.com/v1/responses"
 
+# Judge usage accumulator for the eval cost analysis. Every
+# judge call funnels through _call_judge(), which adds the
+# Responses API usage object here (output_tokens already
+# includes reasoning tokens). The eval runner resets and
+# snapshots this per row.
+JUDGE_USAGE = {'calls': 0, 'input_tokens': 0, 'output_tokens': 0}
+
+
+def reset_judge_usage():
+    JUDGE_USAGE['calls'] = 0
+    JUDGE_USAGE['input_tokens'] = 0
+    JUDGE_USAGE['output_tokens'] = 0
+
+
+def take_judge_usage():
+    snap = dict(JUDGE_USAGE)
+    reset_judge_usage()
+    return snap
+
 
 class JudgeEval(BaseModel):
     """Original notebook schema, typo fixed. Single holistic score."""
@@ -127,6 +146,10 @@ def _call_judge(prompt: str, model_schema: type[BaseModel]) -> BaseModel:
     except urllib.error.HTTPError as e:
         detail = e.read().decode()[:300]
         raise RuntimeError(f"Judge API error {e.code}: {detail}") from e
+    usage = data.get('usage') or {}
+    JUDGE_USAGE['calls'] += 1
+    JUDGE_USAGE['input_tokens'] += usage.get('input_tokens', 0)
+    JUDGE_USAGE['output_tokens'] += usage.get('output_tokens', 0)
     text = ""
     for item in data.get("output", []):
         for part in item.get("content", []):

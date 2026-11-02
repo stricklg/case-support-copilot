@@ -99,6 +99,10 @@ class KB:
             model=self.embedding_model,
             contents=text,
         )
+        counted = self.client.models.count_tokens(
+            model=self.embedding_model, contents=text)
+        EMBED_USAGE['calls'] += 1
+        EMBED_USAGE['tokens'] += counted.total_tokens or 0
 
         if hasattr(response, "embedding") and response.embedding:
             raw_values = response.embedding.values
@@ -227,3 +231,23 @@ class KB:
             matched_kb=None,
             matched_content=None,
         )
+
+
+# Embedding usage accumulator for the eval cost analysis.
+# EmbedContentResponse carries no usage_metadata (probe,
+# 2026-11-02), so _embed_text() counts each text with
+# count_tokens - measured, not estimated. The runner resets
+# and snapshots this around index build (setup bucket) and
+# per case (query bucket).
+EMBED_USAGE = {'calls': 0, 'tokens': 0}
+
+
+def reset_embed_usage():
+    EMBED_USAGE['calls'] = 0
+    EMBED_USAGE['tokens'] = 0
+
+
+def take_embed_usage():
+    snap = dict(EMBED_USAGE)
+    reset_embed_usage()
+    return snap

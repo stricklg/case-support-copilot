@@ -172,6 +172,21 @@ index. Per-run dashboards live in `capstone/eval/reports/`.
 - Telemetry on the committed log (Sep 2026): triage p50 970 ms /
   p95 1,292 ms; retrieval p50 183 ms / p95 220 ms.
 
+- First cost-instrumented run (2026-11-02, reports/20261102-171807):
+  routing 86%, reply judge 3.27, triage judge 4.42 - the same quality
+  band as the October baselines, now with measured costs (token
+  counts from the APIs' usage objects; embedding tokens counted with
+  count_tokens because the embed response carries none; prices as of
+  2026-11-02). Full 50-case run: **$0.3121 total** - judge $0.2845
+  (91%), generation $0.0264, embeddings $0.0012. Per production
+  ticket: automated **$0.0008**, human-queued after generation
+  $0.0008, deflected **$0.000009** - a deflection costs about 1% of a
+  generated ticket, because the similarity gate fires before any
+  generation call. Run daily, the full eval would cost ~$9.36/month:
+  small, but it buys nothing a weekly run would not, so the Kestra
+  schedule stays off. These figures are the cloud baseline for the
+  December local-model comparison.
+
 ## Run it (<5 minutes)
 
 Requires Python 3.12 and a Gemini API key (an OpenAI key is only needed for the judge).

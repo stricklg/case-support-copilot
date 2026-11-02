@@ -263,6 +263,39 @@ system_prompt_text = prompt_file.read_text(encoding="utf-8")
 
 client = genai.Client()  
 
+# Generation usage accumulator for the eval cost analysis.
+# triage_and_categorize() adds each generate_content call's
+# usage_metadata here; the eval runner resets and snapshots it
+# per case. Keys mirror the API's token buckets; billable
+# output = candidates + thoughts (Gemini bills thinking
+# tokens at the output rate).
+USAGE_TOTALS = {
+    'calls': 0, 'prompt_tokens': 0, 'output_tokens': 0,
+    'thoughts_tokens': 0, 'by_model': {},
+}
+
+
+def reset_usage():
+    USAGE_TOTALS['calls'] = 0
+    USAGE_TOTALS['prompt_tokens'] = 0
+    USAGE_TOTALS['output_tokens'] = 0
+    USAGE_TOTALS['thoughts_tokens'] = 0
+    USAGE_TOTALS['by_model'] = {}
+
+
+def take_usage():
+    snap = {
+        'calls': USAGE_TOTALS['calls'],
+        'prompt_tokens': USAGE_TOTALS['prompt_tokens'],
+        'output_tokens': USAGE_TOTALS['output_tokens'],
+        'thoughts_tokens': USAGE_TOTALS['thoughts_tokens'],
+        'by_model': {m: dict(b) for m, b in
+                     USAGE_TOTALS['by_model'].items()},
+    }
+    reset_usage()
+    return snap
+
+
 def triage_and_categorize(ticket_text: str, kb) -> TriageOutput:
     retrieval = kb.query(ticket_text)
 
@@ -300,6 +333,7 @@ def triage_and_categorize(ticket_text: str, kb) -> TriageOutput:
                     temperature = 0.0,
             )
 
+    used_fallback = False
     try:
         response = client.models.generate_content(
             model=PRIMARY_MODEL,
@@ -308,12 +342,37 @@ def triage_and_categorize(ticket_text: str, kb) -> TriageOutput:
         )
 
     except (errors.APIError, Exception) as e:
+        used_fallback = True
         print(f"{PRIMARY_MODEL} Failed with error: {e}. Falling back to {FALLBACK_MODEL}.")
         response = client.models.generate_content(
             model = FALLBACK_MODEL,
             contents = augmented_prompt,
             config=config,
         )
+
+    meta = getattr(response, 'usage_metadata', None)
+    if meta is not None:
+        model_used = getattr(response, 'model_version', None)
+        if not model_used:
+            model_used = (FALLBACK_MODEL if used_fallback
+                          else PRIMARY_MODEL)
+        bucket = USAGE_TOTALS['by_model'].setdefault(
+            model_used,
+            {'calls': 0, 'prompt_tokens': 0, 'output_tokens': 0,
+             'thoughts_tokens': 0})
+        bucket['calls'] += 1
+        bucket['prompt_tokens'] += meta.prompt_token_count or 0
+        bucket['output_tokens'] += (
+            meta.candidates_token_count or 0)
+        bucket['thoughts_tokens'] += (
+            meta.thoughts_token_count or 0)
+        USAGE_TOTALS['calls'] += 1
+        USAGE_TOTALS['prompt_tokens'] += (
+            meta.prompt_token_count or 0)
+        USAGE_TOTALS['output_tokens'] += (
+            meta.candidates_token_count or 0)
+        USAGE_TOTALS['thoughts_tokens'] += (
+            meta.thoughts_token_count or 0)
 
     result: TriageOutput = (response.parsed or TriageOutput.model_validate_json(response.text))
     # Keep the two signals separate: the model's confidence stays

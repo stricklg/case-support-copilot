@@ -31,3 +31,16 @@ KEYWORD_RESCUE_MARGIN = float(
 # margins (>= 0.083) had zero errors. In-sample calibration;
 # revisit as the golden set grows.
 MARGIN_FLOOR = float(os.getenv('MARGIN_FLOOR', '0.05'))
+
+# Price table for the eval cost analysis. USD per 1M tokens,
+# standard paid tier. Rates as published 2026-11-02 (Google
+# Gemini API pricing page; OpenAI models page). The fallback
+# rate is introductory and doubles on 2027-01-01 - refresh
+# PRICES_AS_OF whenever a rate is re-checked.
+PRICES_AS_OF = '2026-11-02'
+PRICES = {
+    'gemini-3.5-flash-lite': {'input': 0.30, 'output': 2.50},
+    'gemini-3.8-flash': {'input': 0.75, 'output': 3.75},
+    'gemini-embedding-001': {'input': 0.15, 'output': 0.0},
+    'gpt-6.1-sol': {'input': 2.00, 'output': 10.00},
+}
