@@ -1,0 +1,78 @@
+{
+  "run_at": "2026-11-02T17:25:09.463109+00:00",
+  "mode": "live",
+  "generator_model": "gemini-3.5-flash-lite",
+  "fallback_model": "gemini-3.8-flash",
+  "judge_model": "gpt-6.1-sol",
+  "similarity_threshold": 0.65,
+  "confidence_threshold": 0.65,
+  "benchmark": {
+    "cases": 50,
+    "schema_compliance_pct": 100.0,
+    "routing_accuracy_pct": 86.0
+  },
+  "judged_cases": 33,
+  "judge_averages": {
+    "groundedness": 3.61,
+    "accuracy": 3.48,
+    "actionability": 3.48,
+    "tone": 3.79,
+    "overall": 3.27
+  },
+  "judge_pass_rate_at_5": 0.212,
+  "judge_pass_rate_at_4plus": 0.424,
+  "triage_judged_cases": 33,
+  "triage_judge_averages": {
+    "t_category_fit": 4.88,
+    "t_priority_calibration": 4.7,
+    "t_action_needed": 4.76,
+    "t_issue_completeness": 5.0,
+    "t_overall": 4.42
+  },
+  "triage_pass_rate_at_4plus": 0.879,
+  "triage_pass_rate_at_5": 0.636,
+  "costs": {
+    "prices_as_of": "2026-11-02",
+    "currency": "USD",
+    "tokens_estimated": false,
+    "judge": {
+      "calls": 66,
+      "input_tokens": 83897,
+      "output_tokens": 11667,
+      "usd": 0.2845
+    },
+    "generator": {
+      "calls": 33,
+      "prompt_tokens": 42116,
+      "output_tokens": 5503,
+      "thoughts_tokens": 0,
+      "usd": 0.0264
+    },
+    "query_embeddings": {
+      "calls": 86,
+      "tokens": 2830,
+      "usd": 0.0004
+    },
+    "setup_index_build": {
+      "embedding_calls": 21,
+      "tokens": 5362,
+      "usd": 0.0008
+    },
+    "per_ticket_usd": {
+      "automated": {
+        "n": 16,
+        "mean": 0.000814
+      },
+      "deflected": {
+        "n": 10,
+        "mean": 9e-06
+      },
+      "human_queue": {
+        "n": 17,
+        "mean": 0.000806
+      }
+    },
+    "run_total_usd": 0.3121,
+    "kestra_daily_projection_usd_30d": 9.36
+  }
+}

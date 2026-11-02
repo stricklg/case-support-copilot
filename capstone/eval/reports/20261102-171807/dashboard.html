@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Capstone eval - 20261102-171807</title>
+<style>
+body { font-family: -apple-system, sans-serif; margin: 2rem;
+  color: #1c1c1e; }
+table { border-collapse: collapse; margin: 0.5rem 0 1.5rem; }
+td, th { border: 1px solid #d1d1d6; padding: 4px 10px;
+  text-align: left; font-size: 14px; }
+.headline { display: flex; gap: 1rem; flex-wrap: wrap; }
+.card { border: 1px solid #d1d1d6; border-radius: 10px;
+  padding: 0.8rem 1.2rem; min-width: 130px; }
+.card .n { font-size: 26px; font-weight: 700; }
+.card .l { font-size: 12px; color: #636366; }
+.barcell { width: 220px; }
+.bar { background: #0a84ff; height: 12px; border-radius: 3px; }
+</style></head><body>
+<h1>Capstone eval dashboard</h1>
+<p>Run 20261102-171807 | mode live |
+generator gemini-3.5-flash-lite | judge
+gpt-6.1-sol</p>
+<div class="headline">
+<div class="card"><div class="n">100.0%</div>
+<div class="l">schema compliance</div></div>
+<div class="card"><div class="n">86.0%</div>
+<div class="l">routing accuracy</div></div>
+<div class="card"><div class="n">3.27</div>
+<div class="l">reply judge overall</div></div>
+<div class="card"><div class="n">0.424</div>
+<div class="l">reply pass rate (&gt;= 4)</div></div>
+<div class="card"><div class="n">4.42</div>
+<div class="l">triage judge overall</div></div>
+<div class="card"><div class="n">0.879</div>
+<div class="l">triage pass rate (&gt;= 4)</div></div>
+</div>
+<p>Routing 86.0% -> 86.0%; reply judge 3.03 -> 3.27. Destination changes: none</p>
+<h2>Routing misses (7)</h2>
+<table><tr><th>case</th><th>expected</th><th>got</th>
+<th>class</th><th>evidence</th></tr><tr><td>G17</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>retrieval-deflect</td><td>no runbook accepted (similarity 0.643)</td></tr><tr><td>G18</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>retrieval-deflect</td><td>no runbook accepted (similarity 0.586)</td></tr><tr><td>G28</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>margin gate</td><td>margin 0.023 &lt; 0.05</td></tr><tr><td>G29</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>retrieval-deflect</td><td>no runbook accepted (similarity 0.630)</td></tr><tr><td>G31</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>margin gate</td><td>margin 0.023 &lt; 0.05</td></tr><tr><td>G32</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>retrieval-deflect</td><td>no runbook accepted (similarity 0.644)</td></tr><tr><td>G48</td><td>AUTOMATED_CRM</td><td>HITL_QUEUE</td><td>margin gate</td><td>margin 0.035 &lt; 0.05</td></tr></table>
+<h2>Retrieval</h2>
+<p>Labelled cases: 43 | matched a runbook:
+33 | top-doc accuracy: 90.9% |
+intended automations deflected: 4 of
+23</p>
+<h2>Reply judge (n=33)</h2>
+<table><tr><td>groundedness</td><td class='barcell'><div class='bar' style='width:72%'></div></td><td>3.61</td></tr><tr><td>accuracy</td><td class='barcell'><div class='bar' style='width:70%'></div></td><td>3.48</td></tr><tr><td>actionability</td><td class='barcell'><div class='bar' style='width:70%'></div></td><td>3.48</td></tr><tr><td>tone</td><td class='barcell'><div class='bar' style='width:76%'></div></td><td>3.79</td></tr><tr><td>overall</td><td class='barcell'><div class='bar' style='width:65%'></div></td><td>3.27</td></tr></table>
+<p>Pass at 5: 0.212 |
+pass at &gt;= 4: 0.424</p>
+<h2>Triage judge (n=33)</h2>
+<table><tr><td>t_category_fit</td><td class='barcell'><div class='bar' style='width:98%'></div></td><td>4.88</td></tr><tr><td>t_priority_calibration</td><td class='barcell'><div class='bar' style='width:94%'></div></td><td>4.7</td></tr><tr><td>t_action_needed</td><td class='barcell'><div class='bar' style='width:95%'></div></td><td>4.76</td></tr><tr><td>t_issue_completeness</td><td class='barcell'><div class='bar' style='width:100%'></div></td><td>5.0</td></tr><tr><td>t_overall</td><td class='barcell'><div class='bar' style='width:88%'></div></td><td>4.42</td></tr></table>
+<p>Pass at 5: 0.636 |
+pass at &gt;= 4: 0.879</p>
+<h2>Costs</h2><p>Run total $0.3121 | generator $0.0264 | judge $0.2845 | query embeddings $0.0004 | index build $0.0008 | Kestra daily x30: $9.36</p><table><tr><th>outcome</th><th>n</th><th>mean $/ticket</th></tr><tr><td>automated</td><td>16</td><td>$0.000814</td></tr><tr><td>deflected</td><td>10</td><td>$9e-06</td></tr><tr><td>human_queue</td><td>17</td><td>$0.000806</td></tr></table><p>Prices as of 2026-11-02; token counts measured, not estimated.</p>
+</body></html>

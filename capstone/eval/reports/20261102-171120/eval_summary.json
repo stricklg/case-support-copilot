@@ -1,0 +1,52 @@
+{
+  "run_at": "2026-11-02T17:17:27.938995+00:00",
+  "mode": "replay",
+  "generator_model": "gemini-3.5-flash-lite",
+  "fallback_model": "gemini-3.8-flash",
+  "judge_model": "gpt-6.1-sol",
+  "similarity_threshold": 0.65,
+  "confidence_threshold": 0.65,
+  "benchmark": {
+    "cases": 50,
+    "schema_compliance_pct": 100.0,
+    "routing_accuracy_pct": 86.0
+  },
+  "judged_cases": 33,
+  "judge_averages": {
+    "groundedness": 3.42,
+    "accuracy": 3.42,
+    "actionability": 3.52,
+    "tone": 3.88,
+    "overall": 3.03
+  },
+  "judge_pass_rate_at_5": 0.182,
+  "judge_pass_rate_at_4plus": 0.364,
+  "triage_judged_cases": 33,
+  "triage_judge_averages": {
+    "t_category_fit": 4.76,
+    "t_priority_calibration": 4.64,
+    "t_action_needed": 4.76,
+    "t_issue_completeness": 4.94,
+    "t_overall": 4.3
+  },
+  "triage_pass_rate_at_4plus": 0.848,
+  "triage_pass_rate_at_5": 0.576,
+  "costs": {
+    "prices_as_of": "2026-11-02",
+    "currency": "USD",
+    "tokens_estimated": false,
+    "judge": {
+      "calls": 66,
+      "input_tokens": 83520,
+      "output_tokens": 11981,
+      "usd": 0.2868
+    },
+    "generator": null,
+    "query_embeddings": null,
+    "setup_index_build": null,
+    "per_ticket_usd": null,
+    "run_total_usd": null,
+    "kestra_daily_projection_usd_30d": null,
+    "not_measured": "replay mode: generator and embedding calls are not re-run, so their costs are not measured; judge costs above are measured live"
+  }
+}
