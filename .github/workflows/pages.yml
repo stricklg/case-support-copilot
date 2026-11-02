@@ -1,0 +1,38 @@
+name: Publish eval dashboards
+
+# Serves capstone/eval/reports/ (the per-run dashboards and
+# their index) as a GitHub Pages site, so the README can link
+# a live dashboard instead of a file path. Requires the repo
+# setting Pages -> Source: GitHub Actions (a one-time toggle
+# only the repo owner can make).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "capstone/eval/reports/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: capstone/eval/reports
+      - id: deployment
+        uses: actions/deploy-pages@v4
