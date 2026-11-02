@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      # main.py builds its API client at import time; the
+      # test suite is fully offline and never calls out.
+      GEMINI_API_KEY: test-dummy-key
+      OPENAI_API_KEY: test-dummy-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r capstone/eval/requirements-eval.txt
+          pip install pytest
+      - name: Compile all modules
+        run: python -m compileall -q capstone
+      - name: Run tests
+        run: python -m pytest capstone/tests -q
