@@ -1,5 +1,10 @@
 # Case Support Copilot
 
+**Live eval dashboards:**
+[stricklg.github.io/case-support-copilot](https://stricklg.github.io/case-support-copilot/)
+- every golden-set run with routing results, judge scores,
+and measured API costs.
+
 A RAG-grounded support-triage system: it validates an incoming ticket, retrieves the
 matching runbook from a knowledge base, has an LLM classify and draft a grounded reply, and
 routes the ticket to an automated handling queue or a human review queue. Telemetry exists

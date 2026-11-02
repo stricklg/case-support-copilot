@@ -286,11 +286,20 @@ def build_all(reports_root=None):
         links.append(f"<li><a href='{esc(f.name)}/dashboard.html'>"
                      f"{esc(f.name)}</a></li>")
         prev = f
+    # The index doubles as the GitHub Pages landing page, so
+    # it carries a line of context and lists latest first
+    # (links were collected oldest-first for prev chaining).
     (reports / "index.html").write_text(
         "<!DOCTYPE html><html><head><meta charset='utf-8'>"
-        "<title>Capstone eval runs</title></head><body>"
-        "<h1>Capstone eval runs</h1><ul>"
-        + "".join(links) + "</ul></body></html>")
+        "<title>Case Support Copilot - eval runs</title>"
+        "<style>body { font-family: -apple-system, sans-serif;"
+        " margin: 2rem; color: #1c1c1e; }</style></head><body>"
+        "<h1>Case Support Copilot - evaluation runs</h1>"
+        "<p>Per-run dashboards from the 50-case golden-set "
+        "eval harness: routing accuracy, retrieval, reply and "
+        "triage judge scores, and measured API costs. "
+        "Latest run first.</p><ul>"
+        + "".join(reversed(links)) + "</ul></body></html>")
     return len(folders)
 
 
