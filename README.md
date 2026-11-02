@@ -5,6 +5,13 @@
 - every golden-set run with routing results, judge scores,
 and measured API costs.
 
+![System demo](docs/demo.gif)
+
+*The Streamlit app on two golden-set tickets: the HubSpot
+webhook failure auto-routes (confidence 0.95), while the
+parquet-export feature request escalates to a human queue
+at the same confidence - policy routing, not model mood.*
+
 A RAG-grounded support-triage system: it validates an incoming ticket, retrieves the
 matching runbook from a knowledge base, has an LLM classify and draft a grounded reply, and
 routes the ticket to an automated handling queue or a human review queue. Telemetry exists
