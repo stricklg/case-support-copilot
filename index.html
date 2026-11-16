@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OmniFlow Support Ticket Submission</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<img src="image/omniflow-logo.png" alt="OmniFlow logo" width="300">
+<h1>OmniFlow Support Ticket Submission</h1>
+<p>Welcome to OmniFlow's Ticket Submission System. Your inquiry is important to us. Please complete the fields with as much detail as possible and we'll respond within 2 business days.</p>
+
+<form id="ticket-form">
+<label for="email">E-mail</label>
+<input type="email" id="email" name="email" required pattern="[\w.-]+@[\w.-]+\.\w+" title="Enter a full email address, e.g. name@company.com">
+<label for="subject">Subject</label>
+<input type="text" id="subject" name="subject" required minlength="3" maxlength="200">
+<label for="body">Body</label>
+<textarea id="body" name="body" rows="8" required minlength="10" maxlength="5000"></textarea>
+<button type="submit">Submit Ticket</button>
+</form>
+<div id="ticket-result">Your ticket ID and submission time will appear here.</div>
+<script src="script.js"></script>
+</body>
+</html>
