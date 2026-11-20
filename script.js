@@ -1,12 +1,11 @@
 // Handles the ticket form: on submit, validate the email
 // against the same pattern the backend uses (schemas.py),
 // build the ticket, and POST it to API_URL with fetch.
-// Success shows the ticket ID and routing status in the
-// result box below the form. An HTTP error or a failed
-// connection shows an error message instead and leaves
-// the form filled in, so the user can retry without
-// retyping. The FastAPI endpoint replaces the httpbin
-// test target in API_URL after the Friday sprint.
+// Success shows the ticket ID and the triage category
+// and priority the API returned, in the result box below
+// the form. An HTTP error or a failed connection shows
+// an error message instead and leaves the form filled
+// in, so the user can retry without retyping.
 
 var form = document.getElementById('ticket-form');
 var result = document.getElementById('ticket-result');
@@ -14,10 +13,10 @@ var emailInput = document.getElementById('email');
 var subjectInput = document.getElementById('subject');
 var bodyInput = document.getElementById('body');
 
-// Today's test target: httpbin echoes back whatever JSON
-// it receives, which proves the send worked end to end.
-// Friday this points at the FastAPI endpoint instead.
-var API_URL = 'https://httpbin.org/post';
+// The capstone's FastAPI endpoint (uvicorn on this
+// machine, port 8000). It receives the ticket, runs it
+// through the triage pipeline, and returns the result.
+var API_URL = 'http://localhost:8000/tickets';
 
 // Same rule as InboundTicket.customer_email in schemas.py.
 // Checked here in code because iOS Safari does not enforce
@@ -60,15 +59,29 @@ form.addEventListener('submit', async function (event) {
       return;
     }
 
+    var data = null;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      data = null;
+    }
+
     var stamp = new Date().toLocaleString('en-US', {
       dateStyle: 'medium',
       timeStyle: 'short'
     });
 
+    var statusLine = 'Status: Routed to the triage queue.';
+    if (data && data.category) {
+      statusLine =
+        'Category: ' + data.category + '\n' +
+        'Priority: ' + data.priority;
+    }
+
     result.textContent =
       'Ticket ID: ' + ticket.ticket_id + '\n' +
       'Submitted: ' + stamp + '\n' +
-      'Status: Routed to the triage queue.';
+      statusLine;
 
     form.reset();
   } catch (error) {

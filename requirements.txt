@@ -7,4 +7,5 @@ google-genai==2.8.0
 pydantic==2.13.4
 python-dotenv==1.2.2
 numpy==2.5.1
-streamlit==1.66.0
+fastapi==0.165.0
+uvicorn==0.54.0

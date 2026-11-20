@@ -420,16 +420,58 @@ def ingest_ticket(raw_payload: Dict[str, Any]) -> Tuple[int, Any]:
 
 def process_inbound_ticket(raw_payload: dict, kb: KB):
     """End-to-end handler: Ingests, validates, retrieves context, and triages."""
+    ticket_id = raw_payload.get("ticket_id", "UNKNOWN_ID")
+
+    t0 = time.perf_counter()
     status, result = ingest_ticket(raw_payload)
+    ingest_ms = (time.perf_counter() - t0) * 1000
 
     if status != 200:
+        log_event(
+            TelemetryEvent(
+                ticket_id=ticket_id,
+                stage="INGESTION",
+                status="REJECTION",
+                latency_ms=ingest_ms,
+                details=result,
+            )
+        )
         print(f"[REJECTED {status} Malformed payload halting pipeline.]")
         return status, result
 
     ticket: InboundTicket = result
+    log_event(
+        TelemetryEvent(
+            ticket_id=ticket.ticket_id,
+            stage="INGESTION",
+            status="SUCCESS",
+            latency_ms=ingest_ms,
+            details={"customer_email": ticket.customer_email},
+        )
+    )
     print(f"[ACCEPTED 200] Processing ticket {ticket.ticket_id}...")
 
+    t0 = time.perf_counter()
     triage_result = triage_and_categorize(ticket.composite_text, kb)
+    triage_ms = (time.perf_counter() - t0) * 1000
+
+    log_event(
+        TelemetryEvent(
+            ticket_id=ticket.ticket_id,
+            stage="TRIAGE",
+            status="SUCCESS",
+            latency_ms=triage_ms,
+            details={
+                "category": getattr(
+                    triage_result.category, "value",
+                    str(triage_result.category),
+                ),
+                "confidence": triage_result.confidence,
+                "retrieval_similarity": triage_result.retrieval_similarity,
+                "retrieval_margin": triage_result.retrieval_margin,
+            },
+        )
+    )
     return 200, triage_result
 
 
