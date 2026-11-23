@@ -1,0 +1,5 @@
+{"timestamp": "2026-11-20T16:45:12.123456+00:00", "ticket_id": "SAMPLE-001", "stage": "INGESTION", "status": "SUCCESS", "latency_ms": 1.24, "details": {"customer_email": "customer@example.com", "status": "accepted"}}
+{"timestamp": "2026-11-20T16:45:12.234567+00:00", "ticket_id": "SAMPLE-001", "stage": "RETRIEVAL", "status": "SUCCESS", "latency_ms": 18.73, "details": {"doc_name": "password_reset_guide.md", "score": 0.87}}
+{"timestamp": "2026-11-20T16:45:13.345678+00:00", "ticket_id": "SAMPLE-001", "stage": "TRIAGE", "status": "SUCCESS", "latency_ms": 842.51, "details": {"category": "account_access", "confidence": 0.92, "has_sla_notice": false}}
+{"timestamp": "2026-11-20T16:45:13.456789+00:00", "ticket_id": "SAMPLE-001", "stage": "EXECUTION", "status": "SUCCESS", "latency_ms": 3.08, "details": {"destination": "auto_reply"}}
+{"timestamp": "2026-11-20T16:46:01.567890+00:00", "ticket_id": "SAMPLE-002", "stage": "INGESTION", "status": "REJECTION", "latency_ms": 0.87, "details": {"errors": ["missing required field: subject"]}}
